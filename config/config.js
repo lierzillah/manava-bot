@@ -2,10 +2,10 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const {
-  DB_USERNAME: username,
-  DB_PASSWORD: password,
-  DB_NAME: database,
-  DB_HOST: host,
+  USERNAME: username,
+  PASSWORD: password,
+  DATABASE: database,
+  HOST: host,
 } = process.env;
 
 module.exports = {

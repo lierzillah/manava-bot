@@ -1,0 +1,193 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "User API",
+    "version": "1.0.0",
+    "description": "API documentation for user authentication, management, and access control"
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Log in a user",
+        "tags": ["Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserLogin" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User logged in successfully" },
+          "404": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/auth/sign-up": {
+      "post": {
+        "summary": "Sign up a new user",
+        "tags": ["Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserCreate" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User created successfully" },
+          "404": { "description": "Error creating user" }
+        }
+      }
+    },
+    "/auth/refresh-token": {
+      "post": {
+        "summary": "Refresh JWT access token",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "schema": { "type": "string" },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": { "description": "New access token returned" },
+          "404": { "description": "Invalid refresh token" }
+        }
+      }
+    },
+    "/user": {
+      "get": {
+        "summary": "Get current user by token",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "User details" },
+          "404": { "description": "User not found" }
+        }
+      },
+      "post": {
+        "summary": "Create a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserCreate" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User created" },
+          "404": { "description": "Error creating user" }
+        }
+      }
+    },
+    "/user/{userId}": {
+      "get": {
+        "summary": "Get user by ID",
+        "tags": ["Users"],
+        "parameters": [
+          { "in": "path", "name": "userId", "schema": { "type": "integer" }, "required": true }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "User details" },
+          "404": { "description": "User not found" }
+        }
+      },
+      "put": {
+        "summary": "Update user by ID",
+        "tags": ["Users"],
+        "parameters": [
+          { "in": "path", "name": "userId", "schema": { "type": "integer" }, "required": true }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserUpdate" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User updated successfully" },
+          "500": { "description": "Error updating user" }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Get list of users",
+        "tags": ["Users"],
+        "parameters": [
+          { "in": "query", "name": "isAdminPanelUser", "schema": { "type": "boolean" } }
+        ],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "List of users" }
+        }
+      }
+    },
+    "/check-access-token": {
+      "get": {
+        "summary": "Check if access token is valid",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Valid token" },
+          "404": { "description": "Invalid token" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserLogin": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "password": { "type": "string" }
+        },
+        "required": ["username", "password"]
+      },
+      "UserCreate": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "password": { "type": "string" },
+          "email": { "type": "string" },
+          "role": { "type": "string", "enum": ["admin", "content_manager", "marketer", "user_bot", "user"], "default": "user" },
+          "active": { "type": "boolean", "default": true },
+          "language": { "type": "string", "enum": ["ru", "ua", "en", "tr", "de", "es"], "default": "ua" },
+          "telegramId": { "type": "string" },
+          "isAdminPanelUser": { "type": "boolean", "default": false }
+        },
+        "required": ["username", "password", "email"]
+      },
+      "UserUpdate": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "password": { "type": "string" },
+          "email": { "type": "string" },
+          "role": { "type": "string", "enum": ["admin", "content_manager", "marketer", "user_bot", "user"] },
+          "active": { "type": "boolean" },
+          "language": { "type": "string", "enum": ["ru", "ua", "en", "tr", "de", "es"] },
+          "telegramId": { "type": "string" },
+          "isAdminPanelUser": { "type": "boolean" }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

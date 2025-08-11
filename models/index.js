@@ -7,11 +7,8 @@ const {
 
 module.exports = {
   Users,
-  Auto,
-  Booking,
-  Repair,
-  Routes,
-  Tasks,
-  RoutePoints,
-  RouteStations,
+  UsersEvents,
+  Broadcasts,
+  BroadcastContents,
+  BroadcastLogs
 };

@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const moment = require('moment');
 
 const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = process.env;
-const { System } = require('../db/models');
+const { System } = require('../models');
 
 const checkApiToken = async (authHeader) => {
   const token = authHeader && authHeader.split(' ')[1];

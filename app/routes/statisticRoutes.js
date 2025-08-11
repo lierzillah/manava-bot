@@ -1,6 +1,5 @@
 const {
   logIn,
-  signUp,
   getUser,
   createUser,
   updateUser,
@@ -10,7 +9,20 @@ const {
 const { tokenValidator, updateAccessToken } = require('../utils');
 
 const userRoutes = async (app) => {
-  app.post('/auth/login', async (req, res) => {
+  app.get('/statistic', async (req, res) => {
+    try {
+      // const canAccessContent = await checkAccess({
+      //   accessToken: token,
+      //   allowedRoles: ['content_manager']
+      // });
+      const user = await getUser(req.userId);
+      res.json(user);
+    } catch (error) {
+      res.status(404).json({ error: error.message });
+    }
+  });
+
+  app.post('/statistic', async (req, res) => {
     try {
       const user = await logIn(req.body);
       res.json(user);
@@ -18,15 +30,6 @@ const userRoutes = async (app) => {
       res.status(404).json({ error: error.message });
     }
   });
-
-  app.post('/auth/sign-up', async (req, res) => {
-    try {
-      const user = await signUp(req.body);
-      res.json(user);
-    } catch (error) {
-      res.status(404).json({ error: error.message });
-    }
-  })
 
   app.post('/auth/refresh-token', tokenValidator('jwt'), async (req, res) => {
     try {
@@ -89,9 +92,9 @@ const userRoutes = async (app) => {
     }
   });
 
-  app.put('/user/:userId', async (req, res) => {
+  app.put('/user/:id', async (req, res) => {
     try {
-      const user = await updateUser(req.params.userId, req.body);
+      const user = await updateUser(req.params.id, req.body);
       res.json(user);
     } catch (error) {
       res.status(500).json({ message: 'Error updating user', error });

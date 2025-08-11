@@ -2,12 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const cors = require('cors');
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
-// const { userRoutes } = require('./app/routes/userRoutes');
-// const { shopRoutes } = require('./app/routes/shopRoutes');
-// const { songsRoutes } = require('./app/routes/songsRoutes');
+const { userRoutes } = require('./app/routes/usersRoutes');
 
 const app = express();
 const port = 3000;
@@ -28,8 +27,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 userRoutes(app);
-songsRoutes(app);
-shopRoutes(app);
 
 app.server = app.listen(port, () => {
   console.log(`Server is listening at http://localhost:${port}`);

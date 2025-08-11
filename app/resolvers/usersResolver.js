@@ -44,7 +44,29 @@ const logIn = async (args) => {
   }
 };
 
-const refreshToken = async () => {};
+async function signUp(args) {
+  try {
+    const { username, password } = args;
+
+    const isAlreadyCreated = await Users.findOne({
+      where: {
+        username,
+      },
+    });
+
+    if (!isAlreadyCreated) return { status: 400, error: `User with ${isAlreadyCreated.username} is already registered` };
+    
+    const [user] = await Users.create(args);
+    const encryptedPassword = encryptPassword(password);
+    const { accessToken, refreshToken } = updateJwtToken(user.userId);
+
+    await user.update({ accessToken, refreshToken, password: encryptedPassword });
+    return getUser(user.userId);
+
+  } catch (error) {
+    return { status: 404, error };
+  }
+}
 
 const getUser = async (userId) => {
   const user = await Users.findOne({ where: { userId } });
@@ -116,11 +138,24 @@ const checkUserAccessToken = async ({ accessToken }) => {
   return { status: 200 };
 };
 
+const checkAccess = async ({ userId, allowedRoles }) => {
+  const user = await Users.findOne({
+    where: { userId },
+  });
+
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+
+  return allowedRoles.includes(user.role);
+};
+
 module.exports = {
   logIn,
+  signUp,
   getUser,
   createUser,
   updateUser,
   getUsers,
   checkUserAccessToken,
+  checkAccess
 };

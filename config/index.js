@@ -1,8 +1,8 @@
-const { DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST } = process.env;
+const { USERNAME, PASSWORD, DATABASE, HOST } = process.env;
 const Sequelize = require('sequelize');
 
 const sequelize = new Sequelize(
-  `postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}`,
+  `postgres://${USERNAME}:${PASSWORD}@${HOST}:5432/${DATABASE}`,
   {
     dialect: 'postgres',
   },
