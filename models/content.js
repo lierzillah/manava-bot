@@ -138,4 +138,9 @@ const ContentButtonTranslations = sequelize.define(
   },
 );
 
-module.exports = { ContentBlocks, ContentButtons, ContentTranslations, ContentButtonTranslations };
+module.exports = {
+  ContentBlocks,
+  ContentButtons,
+  ContentTranslations,
+  ContentButtonTranslations,
+};

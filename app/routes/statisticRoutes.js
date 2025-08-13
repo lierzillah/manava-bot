@@ -1,22 +1,90 @@
 const {
-  logIn,
-  getUser,
-  createUser,
-  updateUser,
-  getUsers,
-  checkUserAccessToken,
-} = require('../resolvers/usersResolver');
-const { tokenValidator, updateAccessToken } = require('../utils');
+  getFullStatistics,
+  getStatisticCount,
+  getUserActivityStatistic,
+  logStatistic,
+} = require('../resolvers/statisticResolver');
 
-const userRoutes = async (app) => {
-  app.get('/statistic', async (req, res) => {
+const { checkAccess } = require('../resolvers/usersResolver');
+const { tokenValidator, accessErrorMsg } = require('../utils');
+
+const statisticRoutes = async (app) => {
+  app.get('/statistic/activity', tokenValidator('jwt'), async (req, res) => {
     try {
-      // const canAccessContent = await checkAccess({
-      //   accessToken: token,
-      //   allowedRoles: ['content_manager']
-      // });
-      const user = await getUser(req.userId);
-      res.json(user);
+      const canAccessContent = await checkAccess({
+        userId: req.userId,
+        allowedRoles: ['content_manager'],
+      });
+
+      if (canAccessContent) {
+        const statistic = await getUserActivityStatistic();
+        res.json(statistic);
+      } else {
+        accessErrorMsg({ res, roles: 'Admin or Content Manager' });
+      }
+    } catch (error) {
+      res.status(404).json({ error: error.message });
+    }
+  });
+
+  app.get('/statistic', tokenValidator('jwt'), async (req, res) => {
+    try {
+      const canAccessContent = await checkAccess({
+        userId: req.userId,
+        allowedRoles: ['content_manager'],
+      });
+
+      if (canAccessContent) {
+        const { type, dau, wau, mau } = req.query;
+        const statistic = await getStatisticCount({ type, dau, mau, wau });
+        res.json(statistic);
+      } else {
+        accessErrorMsg({ res, roles: 'Admin or Content Manager' });
+      }
+    } catch (error) {
+      res.status(404).json({ error: error.message });
+    }
+  });
+
+  app.get('/statistic/users', tokenValidator('jwt'), async (req, res) => {
+    try {
+      const canAccessContent = await checkAccess({
+        userId: req.userId,
+        allowedRoles: ['content_manager'],
+      });
+
+      if (canAccessContent) {
+        const { type, dau, wau, mau } = req.query;
+        const statistic = await getFullStatistics({ type, dau, mau, wau });
+        res.json(statistic);
+      } else {
+        accessErrorMsg({ res, roles: 'Admin or Content Manager' });
+      }
+    } catch (error) {
+      res.status(404).json({ error: error.message });
+    }
+  });
+
+  app.get('/statistic/buttons', tokenValidator('jwt'), async (req, res) => {
+    try {
+      const canAccessContent = await checkAccess({
+        userId: req.userId,
+        allowedRoles: ['content_manager'],
+      });
+
+      if (canAccessContent) {
+        const { type, dau, wau, mau } = req.query;
+        const statistic = await getStatisticCount({
+          type,
+          dau,
+          mau,
+          wau,
+          isButtonsStats: true,
+        });
+        res.json(statistic);
+      } else {
+        accessErrorMsg({ res, roles: 'Admin or Content Manager' });
+      }
     } catch (error) {
       res.status(404).json({ error: error.message });
     }
@@ -24,84 +92,14 @@ const userRoutes = async (app) => {
 
   app.post('/statistic', async (req, res) => {
     try {
-      const user = await logIn(req.body);
-      res.json(user);
+      const statistic = await logStatistic(req.body);
+      res.json(statistic);
     } catch (error) {
       res.status(404).json({ error: error.message });
-    }
-  });
-
-  app.post('/auth/refresh-token', tokenValidator('jwt'), async (req, res) => {
-    try {
-      const authHeader = req.headers['authorization'];
-      const refreshToken = authHeader && authHeader.split(' ')[1];
-      const { accessToken, userId } = await updateAccessToken(refreshToken);
-      await updateUserAccessToken(userId, accessToken);
-      res.json({ accessToken });
-    } catch (error) {
-      res.status(404).json({ error: error.message });
-    }
-  });
-
-  app.get('/user', tokenValidator('jwt'), async (req, res) => {
-    try {
-      const user = await getUser(req.userId);
-      res.json(user);
-    } catch (error) {
-      res.status(404).json({ error: error.message });
-    }
-  });
-
-  app.get('/check-access-token', tokenValidator('jwt'), async (req, res) => {
-    try {
-      const authHeader = req.headers['authorization'];
-      const accessToken = authHeader && authHeader.split(' ')[1];
-      const user = await checkUserAccessToken({ accessToken });
-      res.json(user);
-    } catch (error) {
-      res.status(404).json({ error: error.message });
-    }
-  });
-
-  app.get('/user/:id', tokenValidator('jwt'), async (req, res) => {
-    try {
-      const user = await getUser(req.params.id);
-      res.json(user);
-    } catch (error) {
-      res.status(404).json({ error: error.message });
-    }
-  });
-
-  app.get('/users', tokenValidator('jwt'), async (req, res) => {
-    try {
-      const { isAdminPanelUser = false } = req.query;
-
-      const user = await getUsers({ isAdminPanelUser });
-      res.json(user);
-    } catch (error) {
-      res.status(404).json({ error: error.message });
-    }
-  });
-
-  app.post('/user', async (req, res) => {
-    try {
-      const user = await createUser(req.body);
-      res.json(user);
-    } catch (error) {
-      res.status(404).json({ error: error.message });
-    }
-  });
-
-  app.put('/user/:id', async (req, res) => {
-    try {
-      const user = await updateUser(req.params.id, req.body);
-      res.json(user);
-    } catch (error) {
-      res.status(500).json({ message: 'Error updating user', error });
     }
   });
 };
 
 module.exports = {
-  userRoutes,
+  statisticRoutes,
 };

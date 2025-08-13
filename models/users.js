@@ -64,7 +64,7 @@ const UsersEvents = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    usersId: {
+    userId: {
       type: Sequelize.INTEGER,
     },
     type: {
@@ -82,6 +82,9 @@ const UsersEvents = sequelize.define(
       defaultValue: 'unknown',
     },
     metadata: Sequelize.JSONB,
+    buttonId: {
+      type: Sequelize.INTEGER,
+    },
     createdAt: {
       type: Sequelize.DATE,
       field: 'created_at',
@@ -98,5 +101,8 @@ const UsersEvents = sequelize.define(
     underscored: true,
   },
 );
+
+Users.hasMany(UsersEvents, { foreignKey: 'userId', as: 'events' });
+UsersEvents.belongsTo(Users, { foreignKey: 'userId', as: 'user' });
 
 module.exports = { Users, UsersEvents };

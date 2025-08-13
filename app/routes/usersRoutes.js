@@ -26,7 +26,7 @@ const userRoutes = async (app) => {
     } catch (error) {
       res.status(404).json({ error: error.message });
     }
-  })
+  });
 
   app.post('/auth/refresh-token', tokenValidator('jwt'), async (req, res) => {
     try {

@@ -88,9 +88,9 @@ function tokenValidator(tokenType) {
       if (tokenType === 'api') {
         isValid = await checkApiToken(authHeader);
         if (!isValid) {
-          // return res.status(404).json({
-          //   error: `${tokenType} token is not valid`,
-          // });
+          return res.status(404).json({
+            error: `${tokenType} token is not valid`,
+          });
         }
       } else if (tokenType === 'jwt') {
         if (authHeader) {
@@ -104,9 +104,6 @@ function tokenValidator(tokenType) {
           if (status === 404) {
             isValid = false;
           }
-        } else {
-          isValid = true;
-          req.userId = 'guest';
         }
 
         if (!isValid) {
@@ -142,6 +139,12 @@ const decryptPassword = (text, hashedText) => {
   return encryptPassword(text) === hashedText;
 };
 
+const accessErrorMsg = ({ res, roles = 'Admin' }) => {
+  return res.status(403).json({
+    error: `Access denied. You need the role of ${roles} to view this content.`,
+  });
+};
+
 module.exports = {
   tokenValidator,
   updateJwtToken,
@@ -151,4 +154,5 @@ module.exports = {
   generateApiToken,
   encryptPassword,
   decryptPassword,
+  accessErrorMsg,
 };

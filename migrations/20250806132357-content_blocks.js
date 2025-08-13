@@ -15,8 +15,8 @@ module.exports = {
       },
     };
 
-    await queryInterface.createTable('content_blocks', {
-      content_blocks_id: {
+    await queryInterface.createTable('blocks', {
+      blocks_id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -51,8 +51,8 @@ module.exports = {
       ...dateFields,
     });
 
-    await queryInterface.createTable('content_buttons', {
-      content_buttons_id: {
+    await queryInterface.createTable('buttons', {
+      button_id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -70,8 +70,8 @@ module.exports = {
       ...dateFields,
     });
 
-    await queryInterface.createTable('content_button_translations', {
-      content_button_translations_id: {
+    await queryInterface.createTable('button_translations', {
+      button_translations_id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -89,9 +89,9 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('content_blocks');
-    await queryInterface.dropTable('content_translations');
-    await queryInterface.dropTable('content_buttons');
-    await queryInterface.dropTable('content_button_translations');
+    await queryInterface.dropTable('blocks');
+    await queryInterface.dropTable('translations');
+    await queryInterface.dropTable('buttons');
+    await queryInterface.dropTable('button_translations');
   },
 };

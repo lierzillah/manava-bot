@@ -10,5 +10,5 @@ module.exports = {
   UsersEvents,
   Broadcasts,
   BroadcastContents,
-  BroadcastLogs
+  BroadcastLogs,
 };

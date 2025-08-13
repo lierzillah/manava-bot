@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const { Op } = require('sequelize');
 const { Users } = require('../../models');
 const {
@@ -27,7 +29,11 @@ const logIn = async (args) => {
       const isValidPassword = await decryptPassword(password, user.password);
       if (isValidPassword) {
         const { accessToken, refreshToken } = updateJwtToken(user.userId);
-        await user.update({ accessToken, refreshToken });
+        await user.update({
+          accessToken,
+          refreshToken,
+          lastWebappOpenAt: moment().toDate(),
+        });
 
         return getUser(user.userId);
       } else {
@@ -48,23 +54,39 @@ async function signUp(args) {
   try {
     const { username, password } = args;
 
+    if (!username || !password) {
+      return {
+        status: 400,
+        error: `Username and password is requied for sign up`,
+      };
+    }
+
     const isAlreadyCreated = await Users.findOne({
       where: {
         username,
       },
     });
 
-    if (!isAlreadyCreated) return { status: 400, error: `User with ${isAlreadyCreated.username} is already registered` };
-    
-    const [user] = await Users.create(args);
+    if (isAlreadyCreated) {
+      return {
+        status: 403,
+        error: `User with ${isAlreadyCreated.username} is already registered`,
+      };
+    }
+
+    const user = await Users.create(args);
     const encryptedPassword = encryptPassword(password);
     const { accessToken, refreshToken } = updateJwtToken(user.userId);
 
-    await user.update({ accessToken, refreshToken, password: encryptedPassword });
+    await user.update({
+      accessToken,
+      refreshToken,
+      password: encryptedPassword,
+    });
     return getUser(user.userId);
-
   } catch (error) {
-    return { status: 404, error };
+    console.log('error', error);
+    return { status: 404, error: error.message };
   }
 }
 
@@ -79,11 +101,22 @@ const getUser = async (userId) => {
 const getUsers = ({ isAdminPanelUser = false }) => {
   if (telegramUsers) {
     return Users.findAll({
-      attributes: ['userId', 'username', 'email', 'language', 'firstStartAt', 'lastWebappOpenAt', 'telegramId', 'isAdminPanelUser', 'role', 'active'],
+      attributes: [
+        'userId',
+        'username',
+        'email',
+        'language',
+        'firstStartAt',
+        'lastWebappOpenAt',
+        'telegramId',
+        'isAdminPanelUser',
+        'role',
+        'active',
+      ],
       where: {
-        isAdminPanelUser
-      }
-    })
+        isAdminPanelUser,
+      },
+    });
   }
 };
 
@@ -157,5 +190,5 @@ module.exports = {
   updateUser,
   getUsers,
   checkUserAccessToken,
-  checkAccess
+  checkAccess,
 };

@@ -97,7 +97,7 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
-      users_id: {
+      user_id: {
         type: Sequelize.INTEGER,
       },
       type: {
@@ -114,6 +114,7 @@ module.exports = {
         ),
         defaultValue: 'unknown',
       },
+      button_id: Sequelize.INTEGER,
       metadata: Sequelize.JSONB,
       ...dateFields,
     });
@@ -122,6 +123,6 @@ module.exports = {
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('users');
     await queryInterface.dropTable('system_table');
-    await queryInterface.dropTable('user_events');
+    await queryInterface.dropTable('users_events');
   },
 };

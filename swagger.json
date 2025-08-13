@@ -9,7 +9,7 @@
     "/auth/login": {
       "post": {
         "summary": "Log in a user",
-        "tags": ["Users"],
+        "tags": ["Auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -27,7 +27,7 @@
     "/auth/sign-up": {
       "post": {
         "summary": "Sign up a new user",
-        "tags": ["Users"],
+        "tags": ["Auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -45,7 +45,7 @@
     "/auth/refresh-token": {
       "post": {
         "summary": "Refresh JWT access token",
-        "tags": ["Users"],
+        "tags": ["Auth"],
         "parameters": [
           {
             "in": "header",
@@ -63,7 +63,7 @@
     "/user": {
       "get": {
         "summary": "Get current user by token",
-        "tags": ["Users"],
+        "tags": ["Auth"],
         "security": [{ "bearerAuth": [] }],
         "responses": {
           "200": { "description": "User details" },
@@ -72,6 +72,7 @@
       },
       "post": {
         "summary": "Create a new user",
+        "tags": ["Users"],
         "requestBody": {
           "required": true,
           "content": {
@@ -91,7 +92,12 @@
         "summary": "Get user by ID",
         "tags": ["Users"],
         "parameters": [
-          { "in": "path", "name": "userId", "schema": { "type": "integer" }, "required": true }
+          {
+            "in": "path",
+            "name": "userId",
+            "schema": { "type": "integer" },
+            "required": true
+          }
         ],
         "security": [{ "bearerAuth": [] }],
         "responses": {
@@ -103,7 +109,12 @@
         "summary": "Update user by ID",
         "tags": ["Users"],
         "parameters": [
-          { "in": "path", "name": "userId", "schema": { "type": "integer" }, "required": true }
+          {
+            "in": "path",
+            "name": "userId",
+            "schema": { "type": "integer" },
+            "required": true
+          }
         ],
         "requestBody": {
           "required": true,
@@ -124,7 +135,11 @@
         "summary": "Get list of users",
         "tags": ["Users"],
         "parameters": [
-          { "in": "query", "name": "isAdminPanelUser", "schema": { "type": "boolean" } }
+          {
+            "in": "query",
+            "name": "isAdminPanelUser",
+            "schema": { "type": "boolean" }
+          }
         ],
         "security": [{ "bearerAuth": [] }],
         "responses": {
@@ -135,11 +150,224 @@
     "/check-access-token": {
       "get": {
         "summary": "Check if access token is valid",
-        "tags": ["Users"],
+        "tags": ["Auth"],
         "security": [{ "bearerAuth": [] }],
         "responses": {
           "200": { "description": "Valid token" },
           "404": { "description": "Invalid token" }
+        }
+      }
+    },
+    "/statistic/activity": {
+      "get": {
+        "tags": ["Statistics"],
+        "summary": "Get user activity statistics",
+        "description": "Returns overall user activity metrics. Requires Content Manager or Admin role.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "User activity statistics",
+            "content": {
+              "application/json": {
+                "example": {
+                  "allUsers": 100,
+                  "allAdminUsers": 5,
+                  "telegramUsers": 95
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied. Only Admin or Content Manager can view this content."
+          },
+          "404": {
+            "description": "Resource not found"
+          }
+        }
+      }
+    },
+    "/statistic": {
+      "get": {
+        "tags": ["Statistics"],
+        "summary": "Get statistics by type",
+        "security": [{ "bearerAuth": [] }],
+        "description": "Returns statistics filtered by type and optional DAU, WAU, MAU flags.",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "start",
+                "webapp_open",
+                "click",
+                "content_view",
+                "lang_change",
+                "screen_enter",
+                "broadcast_view",
+                "error",
+                "unknown"
+              ]
+            },
+            "description": "Type of event"
+          },
+          {
+            "name": "dau",
+            "in": "query",
+            "schema": { "type": "boolean" },
+            "description": "Include daily active users"
+          },
+          {
+            "name": "wau",
+            "in": "query",
+            "schema": { "type": "boolean" },
+            "description": "Include weekly active users"
+          },
+          {
+            "name": "mau",
+            "in": "query",
+            "schema": { "type": "boolean" },
+            "description": "Include monthly active users"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Statistics by type" },
+          "403": {
+            "description": "Access denied. Only Admin or Content Manager can view this content."
+          },
+          "404": { "description": "Resource not found" }
+        }
+      },
+      "post": {
+        "tags": ["Statistics"],
+        "summary": "Log a new statistic event",
+        "description": "Saves a new user event in the system.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": { "type": "integer" },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "start",
+                      "webapp_open",
+                      "click",
+                      "content_view",
+                      "lang_change",
+                      "screen_enter",
+                      "broadcast_view",
+                      "error",
+                      "unknown"
+                    ]
+                  },
+                  "metadata": { "type": "object" },
+                  "buttonId": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Event logged successfully" },
+          "404": { "description": "Failed to log event" }
+        }
+      }
+    },
+    "/statistic/users": {
+      "get": {
+        "tags": ["Statistics"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Get full user statistics",
+        "description": "Returns detailed user statistics with optional DAU, WAU, MAU filtering.",
+        "parameters": [
+ {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "start",
+                "webapp_open",
+                "click",
+                "content_view",
+                "lang_change",
+                "screen_enter",
+                "broadcast_view",
+                "error",
+                "unknown"
+              ]
+            },
+            "description": "Type of event"
+          },
+          {
+            "name": "dau",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean" }
+          },
+          {
+            "name": "wau",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean" }
+          },
+          {
+            "name": "mau",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Detailed user statistics" },
+          "403": {
+            "description": "Access denied. Only Admin or Content Manager can view this content."
+          },
+          "404": { "description": "Resource not found" }
+        }
+      }
+    },
+    "/statistic/buttons": {
+      "get": {
+        "tags": ["Statistics"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Get top button click statistics",
+        "description": "Returns top clicked buttons statistics. Optional DAU, WAU, MAU filtering.",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "start",
+                "webapp_open",
+                "click",
+                "content_view",
+                "lang_change",
+                "screen_enter",
+                "broadcast_view",
+                "error",
+                "unknown"
+              ]
+            },
+            "description": "Type of event"
+          },
+          { "name": "dau", "in": "query", "schema": { "type": "boolean" } },
+          { "name": "wau", "in": "query", "schema": { "type": "boolean" } },
+          { "name": "mau", "in": "query", "schema": { "type": "boolean" } }
+        ],
+        "responses": {
+          "200": { "description": "Top button click statistics" },
+          "403": {
+            "description": "Access denied. Only Admin or Content Manager can view this content."
+          },
+          "404": { "description": "Resource not found" }
         }
       }
     }
@@ -149,20 +377,35 @@
       "UserLogin": {
         "type": "object",
         "properties": {
-          "username": { "type": "string" },
-          "password": { "type": "string" }
+          "username": { "type": "string", "example": "username_example_123" },
+          "password": { "type": "string", "example": "1111" }
         },
         "required": ["username", "password"]
       },
       "UserCreate": {
         "type": "object",
         "properties": {
-          "username": { "type": "string" },
-          "password": { "type": "string" },
-          "email": { "type": "string" },
-          "role": { "type": "string", "enum": ["admin", "content_manager", "marketer", "user_bot", "user"], "default": "user" },
+          "username": { "type": "string", "example": "username_example_123" },
+          "password": { "type": "string", "example": "1111" },
+          "email": { "type": "string", "example": "example@example.com" },
+          "role": {
+            "type": "string",
+            "description": "The role assigned to the user. Choose from: admin, content_manager, marketer, user_bot, user",
+            "enum": [
+              "admin",
+              "content_manager",
+              "marketer",
+              "user_bot",
+              "user"
+            ],
+            "default": "user"
+          },
           "active": { "type": "boolean", "default": true },
-          "language": { "type": "string", "enum": ["ru", "ua", "en", "tr", "de", "es"], "default": "ua" },
+          "language": {
+            "type": "string",
+            "enum": ["ru", "ua", "en", "tr", "de", "es"],
+            "default": "ua"
+          },
           "telegramId": { "type": "string" },
           "isAdminPanelUser": { "type": "boolean", "default": false }
         },
@@ -171,12 +414,18 @@
       "UserUpdate": {
         "type": "object",
         "properties": {
-          "username": { "type": "string" },
-          "password": { "type": "string" },
-          "email": { "type": "string" },
-          "role": { "type": "string", "enum": ["admin", "content_manager", "marketer", "user_bot", "user"] },
+          "username": { "type": "string", "example": "username_example_123" },
+          "password": { "type": "string", "example": "1111" },
+          "email": { "type": "string", "example": "example@example.com" },
+          "role": {
+            "type": "string",
+            "enum": ["admin", "content_manager", "marketer", "user_bot", "user"]
+          },
           "active": { "type": "boolean" },
-          "language": { "type": "string", "enum": ["ru", "ua", "en", "tr", "de", "es"] },
+          "language": {
+            "type": "string",
+            "enum": ["ru", "ua", "en", "tr", "de", "es"]
+          },
           "telegramId": { "type": "string" },
           "isAdminPanelUser": { "type": "boolean" }
         }
