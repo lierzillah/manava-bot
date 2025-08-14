@@ -285,7 +285,7 @@
         "summary": "Get full user statistics",
         "description": "Returns detailed user statistics with optional DAU, WAU, MAU filtering.",
         "parameters": [
- {
+          {
             "name": "type",
             "in": "query",
             "schema": {
@@ -370,6 +370,198 @@
           "404": { "description": "Resource not found" }
         }
       }
+    },
+    "/broadcasts": {
+      "get": {
+        "summary": "Get all broadcasts",
+        "description": "Retrieve all broadcasts with their contents and status statistics.",
+        "tags": ["Broadcasts"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of broadcasts and statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusSuccess": { "type": "integer", "example": 10 },
+                    "statusError": { "type": "integer", "example": 2 },
+                    "allBroadcasts": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Broadcast" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new broadcast",
+        "description": "Create a new broadcast and its content.",
+        "tags": ["Broadcasts"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string", "example": "Morning broadcast" },
+                  "scheduled_at": {
+                    "type": "string",
+                    "example": "2025-08-20 10:00:00"
+                  },
+                  "intervalCount": { "type": "integer", "example": 500 },
+                  "intervalDelayMinutes": { "type": "integer", "example": 5 },
+                  "repeatIntervalDays": { "type": "integer", "example": 0 },
+                  "status": {
+                    "type": "string",
+                    "enum": ["scheduled", "sending", "done", "failed"],
+                    "example": "scheduled"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": ["ru", "ua", "en", "tr", "de", "es"],
+                    "example": "en"
+                  },
+                  "text": { "type": "string", "example": "Good morning!" },
+                  "mediaUrl": {
+                    "type": "string",
+                    "example": "https://example.com/image.jpg"
+                  },
+                  "mediaType": {
+                    "type": "string",
+                    "enum": ["photo", "video", "document", "gif", "none"],
+                    "example": "photo"
+                  },
+                  "buttons": {
+                    "type": "object",
+                    "example": { "text": "Click me" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Broadcast created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Broadcast" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/broadcasts/{broadcastId}": {
+      "get": {
+        "summary": "Get broadcast by ID",
+        "description": "Retrieve a single broadcast with its contents.",
+        "tags": ["Broadcasts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "broadcastId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Broadcast found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Broadcast" }
+              }
+            }
+          },
+          "404": { "description": "Broadcast not found" }
+        }
+      },
+      "put": {
+        "summary": "Update broadcast",
+        "description": "Update an existing broadcast and its content.",
+        "tags": ["Broadcasts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "broadcastId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string", "example": "Updated broadcast" },
+                  "scheduled_at": {
+                    "type": "string",
+                    "example": "2025-08-21 12:00:00"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["scheduled", "sending", "done", "failed"],
+                    "example": "done"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": ["ru", "ua", "en", "tr", "de", "es"],
+                    "example": "ua"
+                  },
+                  "text": { "type": "string", "example": "Updated text" },
+                  "mediaUrl": {
+                    "type": "string",
+                    "example": "https://example.com/new.jpg"
+                  },
+                  "mediaType": {
+                    "type": "string",
+                    "enum": ["photo", "video", "document", "gif", "none"],
+                    "example": "video"
+                  },
+                  "buttons": {
+                    "type": "object",
+                    "example": { "text": "Updated button" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Broadcast updated successfully" },
+          "404": { "description": "Broadcast not found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete broadcast",
+        "description": "Delete a broadcast by its ID.",
+        "tags": ["Broadcasts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "broadcastId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Broadcast deleted successfully" },
+          "404": { "description": "Broadcast not found" }
+        }
+      }
     }
   },
   "components": {
@@ -428,6 +620,57 @@
           },
           "telegramId": { "type": "string" },
           "isAdminPanelUser": { "type": "boolean" }
+        }
+      },
+      "Broadcast": {
+        "type": "object",
+        "properties": {
+          "broadcastId": { "type": "integer", "example": 1 },
+          "title": { "type": "string", "example": "Morning broadcast" },
+          "scheduled_at": {
+            "type": "string",
+            "example": "2025-08-20 10:00:00"
+          },
+          "intervalCount": { "type": "integer", "example": 500 },
+          "intervalDelayMinutes": { "type": "integer", "example": 5 },
+          "repeatIntervalDays": { "type": "integer", "example": 0 },
+          "status": {
+            "type": "string",
+            "enum": ["scheduled", "sending", "done", "failed"],
+            "example": "scheduled"
+          },
+          "error_msg": { "type": "string", "example": "Some error message" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" },
+          "contents": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/BroadcastContent" }
+          }
+        }
+      },
+      "BroadcastContent": {
+        "type": "object",
+        "properties": {
+          "broadcast_contents_id": { "type": "integer", "example": 1 },
+          "broadcastId": { "type": "integer", "example": 1 },
+          "language": {
+            "type": "string",
+            "enum": ["ru", "ua", "en", "tr", "de", "es"],
+            "example": "en"
+          },
+          "text": { "type": "string", "example": "Broadcast text" },
+          "mediaUrl": {
+            "type": "string",
+            "example": "https://example.com/image.jpg"
+          },
+          "mediaType": {
+            "type": "string",
+            "enum": ["photo", "video", "document", "gif", "none"],
+            "example": "photo"
+          },
+          "buttons": { "type": "object", "example": { "text": "Click me" } },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
         }
       }
     },

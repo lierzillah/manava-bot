@@ -16,19 +16,21 @@ module.exports = {
     };
 
     await queryInterface.createTable('broadcasts', {
-      broadcasts_id: {
+      broadcast_id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
       title: Sequelize.STRING,
       scheduled_at: Sequelize.STRING,
-      interval_count: { type: Sequelize.INTEGER, defaultValue: 500 },
-      interval_delay_minutes: { type: Sequelize.INTEGER, defaultValue: 5 },
+      interval_count: { type: Sequelize.INTEGER, defaultValue: 0 },
+      interval_delay_minutes: { type: Sequelize.INTEGER, defaultValue: 0 },
       status: {
         type: Sequelize.ENUM('scheduled', 'sending', 'done', 'failed'),
         defaultValue: 'scheduled',
       },
+      repeat_interval_days: { type: Sequelize.INTEGER, defaultValue: 0 },
+      error_msg: { type: Sequelize.TEXT },
       ...dateFields,
     });
 
@@ -54,32 +56,10 @@ module.exports = {
       buttons: Sequelize.JSONB,
       ...dateFields,
     });
-
-    await queryInterface.createTable('broadcast_logs', {
-      broadcast_logs_id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      broadcast_id: {
-        type: Sequelize.INTEGER,
-      },
-      user_id: {
-        type: Sequelize.INTEGER,
-      },
-      status: {
-        type: Sequelize.ENUM('sent', 'failed'),
-        defaultValue: 'sent',
-      },
-      error: Sequelize.TEXT,
-      sent_at: Sequelize.DATE,
-      ...dateFields,
-    });
   },
 
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('broadcasts');
     await queryInterface.dropTable('broadcast_contents');
-    await queryInterface.dropTable('broadcast_logs');
   },
 };

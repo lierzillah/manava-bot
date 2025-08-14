@@ -4,7 +4,7 @@ const sequelize = require('../config').sequelize;
 const Broadcasts = sequelize.define(
   'Broadcasts',
   {
-    broadcastsId: {
+    broadcastId: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -13,11 +13,14 @@ const Broadcasts = sequelize.define(
     scheduled_at: Sequelize.STRING,
     intervalCount: { type: Sequelize.INTEGER, defaultValue: 500 },
     intervalDelayMinutes: { type: Sequelize.INTEGER, defaultValue: 5 },
+    repeatIntervalDays: { type: Sequelize.INTEGER },
     status: {
       type: Sequelize.ENUM('scheduled', 'sending', 'done', 'failed'),
       defaultValue: 'scheduled',
     },
-
+    error_msg: {
+      type: Sequelize.TEXT,
+    },
     createdAt: {
       type: Sequelize.DATE,
       field: 'created_at',
@@ -74,43 +77,16 @@ const BroadcastContents = sequelize.define(
   },
 );
 
-const BroadcastLogs = sequelize.define(
-  'BroadcastLogs',
-  {
-    broadcastContentsId: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    broadcastId: {
-      type: Sequelize.INTEGER,
-    },
-    language: {
-      type: Sequelize.ENUM('ru', 'ua', 'en', 'tr', 'de', 'es'),
-      defaultValue: 'ua',
-    },
-    text: Sequelize.TEXT,
-    mediaUrl: Sequelize.STRING,
-    mediaType: {
-      type: Sequelize.ENUM('photo', 'video', 'document', 'gif', 'none'),
-      defaultValue: 'none',
-    },
-    buttons: Sequelize.JSONB,
-    createdAt: {
-      type: Sequelize.DATE,
-      field: 'created_at',
-    },
-    updatedAt: {
-      type: Sequelize.DATE,
-      field: 'updated_at',
-    },
-  },
-  {
-    schema: 'public',
-    tableName: 'broadcast_logs',
-    timestamps: true,
-    underscored: true,
-  },
-);
+Broadcasts.hasMany(BroadcastContents, {
+  foreignKey: 'broadcastId',
+  sourceKey: 'broadcastId',
+  as: 'contents',
+});
 
-module.exports = { Broadcasts, BroadcastContents, BroadcastLogs };
+BroadcastContents.belongsTo(Broadcasts, {
+  foreignKey: 'broadcastId',
+  targetKey: 'broadcastId',
+  as: 'broadcast',
+});
+
+module.exports = { Broadcasts, BroadcastContents };

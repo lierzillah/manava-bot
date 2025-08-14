@@ -24,10 +24,10 @@ const getStatisticCount = async ({
   isButtonsStats = false,
 }) => {
   if (!type) {
-      return {
-        status: 403,
-        error: `Type is required for statistic`,
-      };
+    return {
+      status: 403,
+      error: `Type is required for statistic`,
+    };
   }
 
   const where = { type };
@@ -50,26 +50,27 @@ const getStatisticCount = async ({
     return UsersEvents.findAndCountAll({ where }); //+ buttons model
   }
 
-return UsersEvents.findAndCountAll({
-  where,
-  include: [
-    { 
+  return UsersEvents.findAndCountAll({
+    where,
+    include: [
+      {
         attributes: [
-        'userId',
-        'username',
-        'email',
-        'language',
-        'firstStartAt',
-        'lastWebappOpenAt',
-        'telegramId',
-        'isAdminPanelUser',
-        'role',
-        'active',
-  ],
-      model: Users, 
-      as: 'user' }
-  ]
-});
+          'userId',
+          'username',
+          'email',
+          'language',
+          'firstStartAt',
+          'lastWebappOpenAt',
+          'telegramId',
+          'isAdminPanelUser',
+          'role',
+          'active',
+        ],
+        model: Users,
+        as: 'user',
+      },
+    ],
+  });
 };
 
 const getFullStatistics = async () => {
