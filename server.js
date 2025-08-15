@@ -13,7 +13,7 @@ const { broadcastRoutes } = require('./app/routes/broadcastRoutes');
 const { contentRoutes } = require('./app/routes/contentRoutes');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const corsOptions = {
   origin: '*',
