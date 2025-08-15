@@ -1,10 +1,10 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config').sequelize;
 
-const ContentBlocks = sequelize.define(
-  'ContentBlocks',
+const Blocks = sequelize.define(
+  'Blocks',
   {
-    contentBlocksId: {
+    blockId: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -14,7 +14,6 @@ const ContentBlocks = sequelize.define(
     },
     code: { type: Sequelize.STRING, unique: true },
     order: Sequelize.INTEGER,
-
     createdAt: {
       type: Sequelize.DATE,
       field: 'created_at',
@@ -26,7 +25,7 @@ const ContentBlocks = sequelize.define(
   },
   {
     schema: 'public',
-    tableName: 'content_blocks',
+    tableName: 'blocks',
     timestamps: true,
     underscored: true,
   },
@@ -70,10 +69,10 @@ const ContentTranslations = sequelize.define(
   },
 );
 
-const ContentButtons = sequelize.define(
-  'ContentButtons',
+const Buttons = sequelize.define(
+  'Buttons',
   {
-    contentButtonsId: {
+    buttonId: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -99,7 +98,7 @@ const ContentButtons = sequelize.define(
   },
   {
     schema: 'public',
-    tableName: 'content_buttons',
+    tableName: 'buttons',
     timestamps: true,
     underscored: true,
   },
@@ -108,7 +107,7 @@ const ContentButtons = sequelize.define(
 const ContentButtonTranslations = sequelize.define(
   'ContentButtonTranslations',
   {
-    contentButtonTranslationsId: {
+    buttonTranslationsId: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -132,15 +131,51 @@ const ContentButtonTranslations = sequelize.define(
   },
   {
     schema: 'public',
-    tableName: 'content_button_translations',
+    tableName: 'button_translations',
     timestamps: true,
     underscored: true,
   },
 );
 
+Blocks.hasMany(Blocks, {
+  foreignKey: 'parentId',
+  as: 'children',
+});
+Blocks.belongsTo(Blocks, {
+  foreignKey: 'parentId',
+  as: 'parent',
+});
+
+Blocks.hasMany(ContentTranslations, {
+  foreignKey: 'blockId',
+  as: 'translations',
+});
+ContentTranslations.belongsTo(Blocks, {
+  foreignKey: 'blockId',
+  as: 'block',
+});
+
+Blocks.hasMany(Buttons, {
+  foreignKey: 'blockId',
+  as: 'buttons',
+});
+Buttons.belongsTo(Blocks, {
+  foreignKey: 'blockId',
+  as: 'block',
+});
+
+Buttons.hasMany(ContentButtonTranslations, {
+  foreignKey: 'buttonId',
+  as: 'translations',
+});
+ContentButtonTranslations.belongsTo(Buttons, {
+  foreignKey: 'buttonId',
+  as: 'button',
+});
+
 module.exports = {
-  ContentBlocks,
-  ContentButtons,
+  Blocks,
+  Buttons,
   ContentTranslations,
   ContentButtonTranslations,
 };

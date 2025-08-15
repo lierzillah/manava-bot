@@ -4,3 +4,6 @@ node_modules
 yarn.lock
 yarn-error.log
 /uploads
+key
+key.pub
+ssh.txt

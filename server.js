@@ -9,6 +9,7 @@ const swaggerDocument = require('./swagger.json');
 const { userRoutes } = require('./app/routes/usersRoutes');
 const { statisticRoutes } = require('./app/routes/statisticRoutes');
 const { broadcastRoutes } = require('./app/routes/broadcastRoutes');
+const { contentRoutes } = require('./app/routes/contentRoutes');
 
 const app = express();
 const port = 3000;
@@ -31,6 +32,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 userRoutes(app);
 statisticRoutes(app);
 broadcastRoutes(app);
+contentRoutes(app);
 
 app.server = app.listen(port, () => {
   console.log(`Server is listening at http://localhost:${port}`);

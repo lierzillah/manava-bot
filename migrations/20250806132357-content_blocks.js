@@ -16,7 +16,7 @@ module.exports = {
     };
 
     await queryInterface.createTable('blocks', {
-      blocks_id: {
+      block_id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -40,7 +40,7 @@ module.exports = {
       },
       language: {
         type: Sequelize.ENUM('ru', 'ua', 'en', 'tr', 'de', 'es'),
-        defaultValue: 'ua',
+        defaultValue: 'en',
       },
       text: Sequelize.TEXT,
       media_url: Sequelize.STRING,
@@ -81,16 +81,44 @@ module.exports = {
       },
       language: {
         type: Sequelize.ENUM('ru', 'ua', 'en', 'tr', 'de', 'es'),
-        defaultValue: 'ua',
+        defaultValue: 'en',
       },
       label: Sequelize.STRING,
       ...dateFields,
     });
+
+    await queryInterface.bulkInsert('blocks', [
+      {
+        code: 'start',
+        order: 0,
+      },
+    ]);
+
+    await queryInterface.bulkInsert('content_translations', [
+      {
+        block_id: 1,
+        text: '🌀 Welcome to the MANAVA multiverse!\nPlay your favorite games and earn real money for every victory. Participate in tournaments and skill matches, develop your account and get access to new opportunities in the new generation gaming industry.\nChoose where to start 👇🏻\,Sign up 👇',
+      },
+    ]);
+
+    await queryInterface.bulkInsert('buttons', [
+      {
+        block_id: 1,
+        order: 0,
+      },
+    ]);
+
+    await queryInterface.bulkInsert('button_translations', [
+      {
+        button_id: 1,
+        label: 'MANAVA APP',
+      },
+    ]);
   },
 
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('blocks');
-    await queryInterface.dropTable('translations');
+    await queryInterface.dropTable('content_translations');
     await queryInterface.dropTable('buttons');
     await queryInterface.dropTable('button_translations');
   },

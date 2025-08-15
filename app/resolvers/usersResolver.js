@@ -172,6 +172,7 @@ const checkUserAccessToken = async ({ accessToken }) => {
 };
 
 const checkAccess = async ({ userId, allowedRoles }) => {
+  if (!userId) return false;
   const user = await Users.findOne({
     where: { userId },
   });

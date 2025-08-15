@@ -562,6 +562,290 @@
           "404": { "description": "Broadcast not found" }
         }
       }
+    },
+    "/content-blocks": {
+      "get": {
+        "summary": "Get all content blocks",
+        "tags": ["Content Blocks"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "List of all content blocks" }
+        }
+      }
+    },
+    "/content/block": {
+      "post": {
+        "summary": "Create a new content block",
+        "tags": ["Content Blocks"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parentId": { "type": "integer" },
+                  "order": { "type": "integer" },
+                  "code": { "type": "string" },
+                  "content": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "language": {
+                          "type": "string",
+                          "enum": ["ru", "ua", "en", "tr", "de", "es"],
+                          "default": "ua"
+                        },
+                        "text": { "type": "string" },
+                        "mediaUrl": { "type": "string" },
+                        "mediaType": {
+                          "type": "string",
+                          "enum": ["photo", "video", "document", "gif", "none"],
+                          "default": "none"
+                        }
+                      },
+                      "required": ["language", "text"]
+                    }
+                  }
+                },
+                "required": ["parentId", "content"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Content block created successfully" },
+          "404": { "description": "Error creating content block" }
+        }
+      }
+    },
+    "/content/block/{blockId}": {
+      "get": {
+        "summary": "Get a content block by ID",
+        "tags": ["Content Blocks"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "blockId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Content block data" },
+          "404": { "description": "Content block not found" }
+        }
+      },
+      "put": {
+        "summary": "Update an existing content block",
+        "tags": ["Content Blocks"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "blockId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parentId": { "type": "integer" },
+                  "order": { "type": "integer" },
+                  "code": { "type": "string" },
+                  "content": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "language": {
+                          "type": "string",
+                          "enum": ["ru", "ua", "en", "tr", "de", "es"],
+                          "default": "ua"
+                        },
+                        "text": { "type": "string" },
+                        "mediaUrl": { "type": "string" },
+                        "mediaType": {
+                          "type": "string",
+                          "enum": ["photo", "video", "document", "gif", "none"],
+                          "default": "none"
+                        }
+                      },
+                      "required": ["language", "text"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Content block updated successfully" },
+          "404": { "description": "Error updating content block" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a content block",
+        "tags": ["Content Blocks"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "blockId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Content block deleted successfully" },
+          "404": { "description": "Error deleting content block" }
+        }
+      }
+    },
+    "/content/button": {
+      "post": {
+        "summary": "Create a new content button",
+        "tags": ["Content Buttons"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "blockId": { "type": "integer" },
+                  "order": { "type": "integer" },
+                  "type": {
+                    "type": "string",
+                    "enum": ["url", "callback", "none"],
+                    "default": "none"
+                  },
+                  "url": { "type": "string" },
+                  "callback": { "type": "string" },
+                  "translations": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "language": {
+                          "type": "string",
+                          "enum": ["ru", "ua", "en", "tr", "de", "es"],
+                          "default": "ua"
+                        },
+                        "label": { "type": "string" }
+                      },
+                      "required": ["language", "label"]
+                    }
+                  }
+                },
+                "required": ["label", "blockId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Content button created successfully" },
+          "404": { "description": "Error creating content button" }
+        }
+      }
+    },
+    "/content/button/{buttonId}": {
+      "get": {
+        "summary": "Get a content button by ID",
+        "tags": ["Content Buttons"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "buttonId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Content button data" },
+          "404": { "description": "Content button not found" }
+        }
+      },
+      "put": {
+        "summary": "Update an existing content button",
+        "tags": ["Content Buttons"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "buttonId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "blockId": { "type": "integer" },
+                  "order": { "type": "integer" },
+                  "type": {
+                    "type": "string",
+                    "enum": ["url", "callback", "none"],
+                    "default": "none"
+                  },
+                  "url": { "type": "string" },
+                  "callback": { "type": "string" },
+                  "translations": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "language": {
+                          "type": "string",
+                          "enum": ["ru", "ua", "en", "tr", "de", "es"],
+                          "default": "ua"
+                        },
+                        "label": { "type": "string" }
+                      },
+                      "required": ["language", "label"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Content button updated successfully" },
+          "404": { "description": "Error updating content button" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a content button",
+        "tags": ["Content Buttons"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "buttonId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Content button deleted successfully" },
+          "404": { "description": "Error deleting content button" }
+        }
+      }
     }
   },
   "components": {
