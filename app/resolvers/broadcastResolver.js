@@ -28,8 +28,31 @@ const createBroadcast = async (args) => {
   return getBroadcastById({ broadcastId: broadcast.broadcastId });
 };
 
-const updateBroadcast = async ({ broadcastId, ...data }) => {
-  await Broadcasts.update(data, { where: { broadcastId } });
+const updateBroadcast = async ({ broadcastId, data, file }) => {
+  const broadcast = await Broadcasts.findOne({ where: { broadcastId } });
+  if (!broadcast) throw new Error(`Broadcast with ID ${broadcastId} not found`);
+
+  let mediaUrl = broadcast.mediaUrl;
+
+  if (file) {
+    if (mediaUrl) {
+      const oldFilePath = path.join(process.cwd(), mediaUrl.replace(/^\/+/, ''));
+      try {
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+      } catch (err) {
+        console.error('Error deleting old file:', err);
+      }
+    }
+    mediaUrl = `/uploads/broadcasts/${file.filename}`;
+  }
+
+  await Broadcasts.update(
+    { ...data, mediaUrl },
+    { where: { broadcastId } }
+  );
+
   return getBroadcastById({ broadcastId });
 };
 

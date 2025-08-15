@@ -5,6 +5,7 @@ const {
   updateContentBlock,
   deleteContentBlock,
   getAllButtons,
+  createTranslationForBlock,
   getContentButtonById,
   createContentButton,
   updateContentButton,
@@ -14,7 +15,7 @@ const {
 const { checkAccess } = require('../resolvers/usersResolver');
 const { tokenValidator, accessErrorMsg } = require('../utils');
 
-const contentRoutes = async (app) => {
+const contentRoutes = async (app, upload) => {
   app.get('/content-blocks', tokenValidator('jwt'), async (req, res) => {
     try {
       const canAccess = await checkAccess({
@@ -168,6 +169,26 @@ const contentRoutes = async (app) => {
         res.json(deleted);
       } catch (error) {
         res.status(404).json({ error: error.message });
+      }
+    },
+  );
+
+  app.post(
+    '/content/block/translation/:blockId/:lang',
+    tokenValidator('jwt'),
+    upload.single('mediaFile'),
+    async (req, res) => {
+      try {
+        const result = await createTranslationForBlock({
+          blockId: req.params.blockId,
+          lang: req.params.lang,
+          args: req.body,
+          file: req.file,
+          res,
+        });
+        res.json(result);
+      } catch (error) {
+        res.status(500).json({ error: error.message });
       }
     },
   );

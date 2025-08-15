@@ -9,7 +9,7 @@ const {
 const { checkAccess } = require('../resolvers/usersResolver');
 const { tokenValidator, accessErrorMsg } = require('../utils');
 
-const broadcastRoutes = async (app) => {
+const broadcastRoutes = async (app, upload) => {
   app.get('/broadcasts', tokenValidator('jwt'), async (req, res) => {
     try {
       const canAccessContent = await checkAccess({
@@ -51,44 +51,50 @@ const broadcastRoutes = async (app) => {
     }
   });
 
-  app.post('/broadcasts', tokenValidator('jwt'), async (req, res) => {
-    try {
-      const canAccessContent = await checkAccess({
-        userId: req.userId,
-        allowedRoles: ['content_manager', 'marketer'],
-      });
+  app.post(
+    '/broadcasts',
+    tokenValidator('jwt'),
+    upload.single('mediaFile'),
+    async (req, res) => {
+      try {
+        const canAccessContent = await checkAccess({
+          userId: req.userId,
+          allowedRoles: ['content_manager', 'marketer'],
+        });
 
-      if (canAccessContent) {
+        if (!canAccessContent)
+          return accessErrorMsg({
+            res,
+            roles: 'Admin, Content Manager or Marketer',
+          });
+
+        if (req.file) req.body.mediaUrl = `/uploads/${req.file.filename}`;
+
         const broadcast = await createBroadcast(req.body);
         res.json(broadcast);
-      } else {
-        accessErrorMsg({ res, roles: 'Admin, Content Manager or Marketer' });
+      } catch (error) {
+        res.status(500).json({ error: error.message });
       }
-    } catch (error) {
-      res.status(404).json({ error: error.message });
-    }
-  });
+    },
+  );
 
-  app.put('/broadcasts/:id', tokenValidator('jwt'), async (req, res) => {
+app.put(
+  '/broadcasts/:broadcastId',
+  tokenValidator('jwt'),
+  upload.single('mediaFile'),
+  async (req, res) => {
     try {
-      const canAccessContent = await checkAccess({
-        userId: req.userId,
-        allowedRoles: ['content_manager', 'marketer'],
+      const updated = await updateBroadcast({
+        broadcastId: req.params.broadcastId,
+        data: req.body,
+        file: req.file,
       });
-
-      if (canAccessContent) {
-        const updated = await updateBroadcast({
-          broadcastId: req.params.id,
-          ...req.body,
-        });
-        res.json(updated);
-      } else {
-        accessErrorMsg({ res, roles: 'Admin, Content Manager or Marketer' });
-      }
-    } catch (error) {
-      res.status(404).json({ error: error.message });
+      res.json(updated);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
-  });
+  }
+);
 
   app.delete('/broadcasts/:id', tokenValidator('jwt'), async (req, res) => {
     try {

@@ -406,7 +406,7 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "type": "object",
                 "properties": {
@@ -429,20 +429,22 @@
                     "example": "en"
                   },
                   "text": { "type": "string", "example": "Good morning!" },
-                  "mediaUrl": {
-                    "type": "string",
-                    "example": "https://example.com/image.jpg"
-                  },
                   "mediaType": {
                     "type": "string",
                     "enum": ["photo", "video", "document", "gif", "none"],
                     "example": "photo"
                   },
+                  "mediaFile": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Optional media file for the broadcast"
+                  },
                   "buttons": {
                     "type": "object",
                     "example": { "text": "Click me" }
                   }
-                }
+                },
+                "required": ["title", "text", "language", "status"]
               }
             }
           }
@@ -501,40 +503,45 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "title": { "type": "string", "example": "Updated broadcast" },
+                  "title": { "type": "string", "example": "Morning broadcast" },
                   "scheduled_at": {
                     "type": "string",
-                    "example": "2025-08-21 12:00:00"
+                    "example": "2025-08-20 10:00:00"
                   },
+                  "intervalCount": { "type": "integer", "example": 500 },
+                  "intervalDelayMinutes": { "type": "integer", "example": 5 },
+                  "repeatIntervalDays": { "type": "integer", "example": 0 },
                   "status": {
                     "type": "string",
                     "enum": ["scheduled", "sending", "done", "failed"],
-                    "example": "done"
+                    "example": "scheduled"
                   },
                   "language": {
                     "type": "string",
                     "enum": ["ru", "ua", "en", "tr", "de", "es"],
-                    "example": "ua"
+                    "example": "en"
                   },
-                  "text": { "type": "string", "example": "Updated text" },
-                  "mediaUrl": {
-                    "type": "string",
-                    "example": "https://example.com/new.jpg"
-                  },
+                  "text": { "type": "string", "example": "Good morning!" },
                   "mediaType": {
                     "type": "string",
                     "enum": ["photo", "video", "document", "gif", "none"],
-                    "example": "video"
+                    "example": "photo"
+                  },
+                  "mediaFile": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Optional media file for the broadcast"
                   },
                   "buttons": {
                     "type": "object",
-                    "example": { "text": "Updated button" }
+                    "example": { "text": "Click me" }
                   }
-                }
+                },
+                "required": ["title", "text", "language", "status"]
               }
             }
           }
@@ -618,6 +625,66 @@
         "responses": {
           "200": { "description": "Content block created successfully" },
           "404": { "description": "Error creating content block" }
+        }
+      }
+    },
+    "/content/block/translation/{blockId}/{lang}": {
+      "post": {
+        "summary": "Create or update translation for a content block",
+        "tags": ["Content Blocks"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "blockId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "ID of the content block"
+          },
+          {
+            "name": "lang",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["ru", "ua", "en", "tr", "de", "es"]
+            },
+            "description": "Language code for the translation"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "example": "Translated text here"
+                  },
+                  "mediaType": {
+                    "type": "string",
+                    "enum": ["none", "photo", "video", "document", "gif"],
+                    "example": "none"
+                  },
+                  "mediaFile": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Optional media file for the translation"
+                  }
+                },
+                "required": ["text", "mediaType"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Translation created or updated successfully"
+          },
+          "403": { "description": "Block not found or access denied" },
+          "500": { "description": "Server error" }
         }
       }
     },

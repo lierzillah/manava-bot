@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const {
   Blocks,
   Buttons,
@@ -128,6 +131,60 @@ const updateContentBlock = async ({ blockId, req, res }) => {
   }
 };
 
+const createTranslationForBlock = async ({
+  blockId,
+  lang,
+  args,
+  file,
+  res,
+}) => {
+  const block = await Blocks.findOne({ where: { blockId } });
+  if (!block)
+    return res.status(403).json({ error: `Block with ${blockId} not found` });
+
+  let mediaUrl = args.mediaUrl || null;
+
+  const [translation, created] = await ContentTranslations.findOrCreate({
+    where: { blockId, language: lang },
+    defaults: {
+      text: args.text,
+      mediaUrl: `/uploads/${file.filename}`,
+      mediaType: args.mediaType,
+    },
+  });
+
+  if (!created) {
+    if (file) {
+      if (translation.mediaUrl) {
+        const oldFilePath = path.join(
+          process.cwd(),
+          translation.mediaUrl.replace(/^\/+/, ''),
+        );
+        console.log('Deleting old file at:', oldFilePath);
+        try {
+          if (fs.existsSync(oldFilePath)) {
+            fs.unlinkSync(oldFilePath);
+          } else {
+          }
+        } catch (err) {
+          console.error('Error deleting old file:', err);
+        }
+      }
+      mediaUrl = `/uploads/${file.filename}`;
+    }
+
+    await translation.update({
+      text: args.text,
+      mediaUrl,
+      mediaType: args.mediaType,
+    });
+  } else if (file) {
+    mediaUrl = `/uploads/${file.filename}`;
+  }
+
+  return getContentBlockById({ blockId });
+};
+
 const deleteContentBlock = async ({ blockId }) => {
   await ContentTranslations.destroy({ where: { blockId: blockId } });
   await Blocks.destroy({ where: { blockId } });
@@ -187,15 +244,16 @@ const updateContentButton = async (args) => {
       url: args.url,
       callback: args.callback,
     },
-    { where: { buttonId } }
+    { where: { buttonId } },
   );
 
   if (Array.isArray(translations)) {
     for (const tr of translations) {
-      const [translation, created] = await ContentButtonTranslations.findOrCreate({
-        where: { buttonId, language: tr.language },
-        defaults: { label: tr.label }
-      });
+      const [translation, created] =
+        await ContentButtonTranslations.findOrCreate({
+          where: { buttonId, language: tr.language },
+          defaults: { label: tr.label },
+        });
 
       if (!created) {
         await translation.update({ label: tr.label });
@@ -229,4 +287,5 @@ module.exports = {
   createContentButton,
   updateContentButton,
   deleteContentButton,
+  createTranslationForBlock,
 };
