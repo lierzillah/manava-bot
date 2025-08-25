@@ -160,7 +160,6 @@ const createTranslationForBlock = async ({
           process.cwd(),
           translation.mediaUrl.replace(/^\/+/, ''),
         );
-        console.log('Deleting old file at:', oldFilePath);
         try {
           if (fs.existsSync(oldFilePath)) {
             fs.unlinkSync(oldFilePath);

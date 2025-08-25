@@ -4,13 +4,19 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer');
+const TelegramBot = require('node-telegram-bot-api');
+
+const { TELEGRAM_BOT_ID } = process.env;
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
+
 const { userRoutes } = require('./app/routes/usersRoutes');
 const { statisticRoutes } = require('./app/routes/statisticRoutes');
 const { broadcastRoutes } = require('./app/routes/broadcastRoutes');
 const { contentRoutes } = require('./app/routes/contentRoutes');
+
+const { initContentHandlers } = require('./bot/commands');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -45,6 +51,11 @@ userRoutes(app);
 statisticRoutes(app);
 broadcastRoutes(app, upload);
 contentRoutes(app, upload);
+
+const bot = new TelegramBot(TELEGRAM_BOT_ID, { polling: true });
+console.log('🤖 Telegram Bot is online');
+
+initContentHandlers(bot);
 
 app.server = app.listen(port, () => {
   console.log(`Server is listening at http://localhost:${port}`);

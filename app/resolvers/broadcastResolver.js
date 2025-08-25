@@ -36,7 +36,10 @@ const updateBroadcast = async ({ broadcastId, data, file }) => {
 
   if (file) {
     if (mediaUrl) {
-      const oldFilePath = path.join(process.cwd(), mediaUrl.replace(/^\/+/, ''));
+      const oldFilePath = path.join(
+        process.cwd(),
+        mediaUrl.replace(/^\/+/, ''),
+      );
       try {
         if (fs.existsSync(oldFilePath)) {
           fs.unlinkSync(oldFilePath);
@@ -48,10 +51,7 @@ const updateBroadcast = async ({ broadcastId, data, file }) => {
     mediaUrl = `/uploads/broadcasts/${file.filename}`;
   }
 
-  await Broadcasts.update(
-    { ...data, mediaUrl },
-    { where: { broadcastId } }
-  );
+  await Broadcasts.update({ ...data, mediaUrl }, { where: { broadcastId } });
 
   return getBroadcastById({ broadcastId });
 };

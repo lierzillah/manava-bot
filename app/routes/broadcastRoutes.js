@@ -78,23 +78,23 @@ const broadcastRoutes = async (app, upload) => {
     },
   );
 
-app.put(
-  '/broadcasts/:broadcastId',
-  tokenValidator('jwt'),
-  upload.single('mediaFile'),
-  async (req, res) => {
-    try {
-      const updated = await updateBroadcast({
-        broadcastId: req.params.broadcastId,
-        data: req.body,
-        file: req.file,
-      });
-      res.json(updated);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  }
-);
+  app.put(
+    '/broadcasts/:broadcastId',
+    tokenValidator('jwt'),
+    upload.single('mediaFile'),
+    async (req, res) => {
+      try {
+        const updated = await updateBroadcast({
+          broadcastId: req.params.broadcastId,
+          data: req.body,
+          file: req.file,
+        });
+        res.json(updated);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    },
+  );
 
   app.delete('/broadcasts/:id', tokenValidator('jwt'), async (req, res) => {
     try {

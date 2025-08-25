@@ -10,6 +10,7 @@ const {
   ContentTranslations,
   Buttons,
   ContentButtonTranslations,
+  ButtonsToBlocks,
 } = require('./content');
 
 module.exports = {
@@ -22,4 +23,5 @@ module.exports = {
   ContentTranslations,
   Buttons,
   ContentButtonTranslations,
+  ButtonsToBlocks,
 };

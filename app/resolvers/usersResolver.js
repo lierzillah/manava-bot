@@ -85,7 +85,6 @@ async function signUp(args) {
     });
     return getUser(user.userId);
   } catch (error) {
-    console.log('error', error);
     return { status: 404, error: error.message };
   }
 }

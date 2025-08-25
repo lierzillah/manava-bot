@@ -77,9 +77,6 @@ const Buttons = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    blockId: {
-      type: Sequelize.INTEGER,
-    },
     order: Sequelize.INTEGER,
     type: {
       type: Sequelize.ENUM('url', 'callback', 'none'),
@@ -87,6 +84,18 @@ const Buttons = sequelize.define(
     },
     url: Sequelize.STRING,
     callback: Sequelize.STRING,
+    keyboardType: {
+      type: Sequelize.ENUM('inline', 'reply'),
+      defaultValue: 'inline',
+    },
+    isFullWidth: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
+    rowOrder: {
+      type: Sequelize.INTEGER,
+    },
+    nextBlockId: { type: Sequelize.INTEGER },
     createdAt: {
       type: Sequelize.DATE,
       field: 'created_at',
@@ -99,6 +108,41 @@ const Buttons = sequelize.define(
   {
     schema: 'public',
     tableName: 'buttons',
+    timestamps: true,
+    underscored: true,
+  },
+);
+
+const ButtonsToBlocks = sequelize.define(
+  'ButtonsToBlocks',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    buttonId: Sequelize.INTEGER,
+    blockId: Sequelize.INTEGER,
+    isFullWidth: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
+    order: Sequelize.INTEGER,
+    rowOrder: {
+      type: Sequelize.INTEGER,
+    },
+    createdAt: {
+      type: Sequelize.DATE,
+      field: 'created_at',
+    },
+    updatedAt: {
+      type: Sequelize.DATE,
+      field: 'updated_at',
+    },
+  },
+  {
+    schema: 'public',
+    tableName: 'buttons_to_blocks',
     timestamps: true,
     underscored: true,
   },
@@ -155,15 +199,6 @@ ContentTranslations.belongsTo(Blocks, {
   as: 'block',
 });
 
-Blocks.hasMany(Buttons, {
-  foreignKey: 'blockId',
-  as: 'buttons',
-});
-Buttons.belongsTo(Blocks, {
-  foreignKey: 'blockId',
-  as: 'block',
-});
-
 Buttons.hasMany(ContentButtonTranslations, {
   foreignKey: 'buttonId',
   as: 'translations',
@@ -173,9 +208,36 @@ ContentButtonTranslations.belongsTo(Buttons, {
   as: 'button',
 });
 
+ButtonsToBlocks.belongsTo(Buttons, { foreignKey: 'buttonId', as: 'button' });
+ButtonsToBlocks.belongsTo(Blocks, { foreignKey: 'blockId', as: 'block' });
+
+Buttons.hasMany(ButtonsToBlocks, {
+  foreignKey: 'buttonId',
+  as: 'buttonsToBlocks',
+});
+Blocks.hasMany(ButtonsToBlocks, {
+  foreignKey: 'blockId',
+  as: 'buttonsToBlocks',
+});
+
+Blocks.belongsToMany(Buttons, {
+  through: ButtonsToBlocks,
+  foreignKey: 'blockId',
+  otherKey: 'buttonId',
+  as: 'buttons',
+});
+
+Buttons.belongsToMany(Blocks, {
+  through: ButtonsToBlocks,
+  foreignKey: 'buttonId',
+  otherKey: 'blockId',
+  as: 'blocks',
+});
+
 module.exports = {
   Blocks,
   Buttons,
   ContentTranslations,
   ContentButtonTranslations,
+  ButtonsToBlocks,
 };
