@@ -1233,7 +1233,7 @@ module.exports = {
         next_block_id: 10,
       },
       {
-        order: 0,
+        order: 1,
         label: 'Back to main menu',
         type: 'callback',
         keyboard_type: 'reply',
@@ -1608,7 +1608,7 @@ module.exports = {
       {
         order: 0,
         block_id: 10,
-        button_id: 18,
+        button_id: 11,
         row_order: 2,
         is_full_width: false,
       },

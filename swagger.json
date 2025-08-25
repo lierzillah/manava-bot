@@ -802,7 +802,7 @@
                   },
                   "is_full_width": { "type": "boolean" },
                   "row_order": { "type": "integer" },
-                  "next_block_id": { "type": "integer" }, 
+                  "next_block_id": { "type": "integer" },
                   "label": { "type": "string" },
                   "url": { "type": "string" },
                   "translations": {
@@ -882,7 +882,7 @@
                   },
                   "is_full_width": { "type": "boolean" },
                   "row_order": { "type": "integer" },
-                  "next_block_id": { "type": "integer" }, 
+                  "next_block_id": { "type": "integer" },
                   "label": { "type": "string" },
                   "url": { "type": "string" },
                   "callback": { "type": "string" },
