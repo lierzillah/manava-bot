@@ -25,6 +25,7 @@ const Users = sequelize.define(
     accessToken: Sequelize.STRING,
     refreshToken: Sequelize.STRING,
     active: { type: Sequelize.BOOLEAN, defaultValue: true },
+    sendNotifications: Sequelize.BOOLEAN,
     language: {
       type: Sequelize.ENUM('ru', 'ua', 'en', 'tr', 'de', 'es'),
       defaultValue: 'ua',

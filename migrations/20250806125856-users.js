@@ -41,6 +41,10 @@ module.exports = {
         type: Sequelize.ENUM('ru', 'ua', 'en', 'tr', 'de', 'es'),
         defaultValue: 'ua',
       },
+      send_notifications: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true,
+      },
       first_start_at: {
         type: Sequelize.DATE,
         field: 'first_start_at',
@@ -65,8 +69,6 @@ module.exports = {
         password:
           'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', //7bGuO46zxocwS7Igz9Ru
         role: 'admin',
-        username: 'admin',
-        email: 'admin@example.com',
         is_admin_panel_user: true,
       },
     ]);

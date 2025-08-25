@@ -6,6 +6,7 @@ const {
   Buttons,
   ContentTranslations,
   ContentButtonTranslations,
+  ButtonsToBlocks
 } = require('../../models');
 
 const getAllBlocks = async () => {
@@ -187,6 +188,7 @@ const createTranslationForBlock = async ({
 const deleteContentBlock = async ({ blockId }) => {
   await ContentTranslations.destroy({ where: { blockId: blockId } });
   await Blocks.destroy({ where: { blockId } });
+  await ButtonsToBlocks.destroy({ where: { blockId }});
   return { success: true };
 };
 
@@ -210,11 +212,15 @@ const createContentButton = async (req, res) => {
 
   try {
     const button = await Buttons.create({
-      blockId,
       order,
       type,
       url,
       callback,
+    });
+
+    await ButtonsToBlocks.create({
+      blockId,
+      buttonId: button.blockId
     });
 
     const translationData = translations.map((t) => ({
@@ -237,7 +243,6 @@ const updateContentButton = async (args) => {
 
   await Buttons.update(
     {
-      blockId: args.blockId,
       order: args.order,
       type: args.type,
       url: args.url,
@@ -266,6 +271,9 @@ const updateContentButton = async (args) => {
 const deleteContentButton = async ({ buttonId }) => {
   await ContentButtonTranslations.destroy({ where: { buttonId } });
   await Buttons.destroy({ where: { buttonId } });
+  await ButtonsToBlocks.create({
+      buttonId
+  });
   return { success: true };
 };
 

@@ -6,3 +6,6 @@ yarn-error.log
 key
 key.pub
 ssh.txt
+users.json
+tran.js
+parser.js

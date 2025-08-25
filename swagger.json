@@ -793,11 +793,18 @@
                   "order": { "type": "integer" },
                   "type": {
                     "type": "string",
-                    "enum": ["url", "callback", "none"],
+                    "enum": ["url", "callback", "web_app", "none"],
                     "default": "none"
                   },
+                  "keyboard_type": {
+                    "type": "string",
+                    "enum": ["inline", "reply"]
+                  },
+                  "is_full_width": { "type": "boolean" },
+                  "row_order": { "type": "integer" },
+                  "next_block_id": { "type": "integer" }, 
+                  "label": { "type": "string" },
                   "url": { "type": "string" },
-                  "callback": { "type": "string" },
                   "translations": {
                     "type": "array",
                     "items": {
@@ -866,9 +873,17 @@
                   "order": { "type": "integer" },
                   "type": {
                     "type": "string",
-                    "enum": ["url", "callback", "none"],
+                    "enum": ["url", "callback", "web_app", "none"],
                     "default": "none"
                   },
+                  "keyboard_type": {
+                    "type": "string",
+                    "enum": ["inline", "reply"]
+                  },
+                  "is_full_width": { "type": "boolean" },
+                  "row_order": { "type": "integer" },
+                  "next_block_id": { "type": "integer" }, 
+                  "label": { "type": "string" },
                   "url": { "type": "string" },
                   "callback": { "type": "string" },
                   "translations": {
@@ -944,6 +959,7 @@
             "default": "user"
           },
           "active": { "type": "boolean", "default": true },
+          "sendNotifications": { "type": "boolean", "default": true },
           "language": {
             "type": "string",
             "enum": ["ru", "ua", "en", "tr", "de", "es"],
@@ -965,6 +981,7 @@
             "enum": ["admin", "content_manager", "marketer", "user_bot", "user"]
           },
           "active": { "type": "boolean" },
+          "sendNotifications": { "type": "boolean" },
           "language": {
             "type": "string",
             "enum": ["ru", "ua", "en", "tr", "de", "es"]
