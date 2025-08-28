@@ -183,6 +183,7 @@ const sendBlock = async (
   if (!blocks || !blocks.length) return;
 
   for (const block of blocks) {
+    if (!block) continue;
     const contentRows = await ContentTranslations.findAll({
       where: { blockId: block.blockId, language },
       order: [['contentTranslationsId', 'ASC']],
