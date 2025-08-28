@@ -4,15 +4,21 @@ const { getUserBotInfo, updateUserInfo, logAction } = require('./resolvers');
 const { findSelectedLang, allLanguages } = require('./lang');
 
 const initContentHandlers = (bot, options = {}) => {
-  const languageResolver =
-    options.getLanguageForMessage ||
-    ((msg) => (msg.from && msg.from.language_code) || 'en');
+const languageResolver =
+  options.getLanguageForMessage ||
+  ((msg) => {
+    let lang = (msg.from && msg.from.language_code) || 'en';
+    if (lang === 'uk') lang = 'ua';
+    return lang;
+  });
 
   bot.on('message', async (msg) => {
     const text = msg.text;
     const chatId = msg.chat.id;
     const telegramId = msg.from.id;
     const username = msg.from.username || null;
+
+    console.log('msg.from.language_code', msg.from.language_code)
 
     const [user] = await getUserBotInfo({
       telegramId: String(telegramId),
