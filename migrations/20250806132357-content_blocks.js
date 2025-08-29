@@ -39,7 +39,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       language: {
-        type: Sequelize.ENUM('ru', 'ua', 'en', 'tr', 'de', 'es'),
+        type: Sequelize.ENUM('ru', 'ua', 'en', 'tr', 'de', 'es', 'global'),
         defaultValue: 'en',
       },
       text: Sequelize.TEXT,
@@ -111,7 +111,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       language: {
-        type: Sequelize.ENUM('ru', 'ua', 'en', 'tr', 'de', 'es'),
+        type: Sequelize.ENUM('ru', 'ua', 'en', 'tr', 'de', 'es', 'global'),
         defaultValue: 'en',
       },
       label: Sequelize.STRING,
@@ -236,6 +236,13 @@ module.exports = {
     ]);
 
     await queryInterface.bulkInsert('content_translations', [
+      {
+        block_id: 1,
+        text: '<b>🌀 Welcome to the MANAVA multiverse!</b>\n\nPlay your favorite games and earn real money for every victory. Participate in tournaments and skill matches, develop your account and get access to new opportunities in the new generation gaming industry.\n\n<b>Choose where to start 👇🏻</b>',
+        language: 'global',
+        media_type: 'video',
+        media_url: 'uploads/video/en/start_video.mp4',
+      },
       {
         block_id: 1,
         text: '<b>🌀 Welcome to the MANAVA multiverse!</b>\n\nPlay your favorite games and earn real money for every victory. Participate in tournaments and skill matches, develop your account and get access to new opportunities in the new generation gaming industry.\n\n<b>Choose where to start 👇🏻</b>',
@@ -4068,6 +4075,7 @@ module.exports = {
     ]);
 
     await queryInterface.bulkInsert('button_translations', [
+      { button_id: 1, label: '🎮 Play and Earn', language: 'global' },
       { button_id: 1, label: '🎮 Play and Earn', language: 'ru' },
       { button_id: 1, label: '🎮 Play and Earn', language: 'ua' },
       { button_id: 1, label: '🎮 Play and Earn', language: 'en' },
@@ -4077,24 +4085,28 @@ module.exports = {
       { button_id: 2, label: '💳 Карта Visa от Manava', language: 'ru' },
       { button_id: 2, label: '💳 Карта Visa від Manava', language: 'ua' },
       { button_id: 2, label: '💳 Manava Visa Card', language: 'en' },
+      { button_id: 2, label: '💳 Manava Visa Card', language: 'global' },
       { button_id: 2, label: '💳 Tarjeta Visa de Manava', language: 'es' },
       { button_id: 2, label: "💳 Manava'dan Visa kart", language: 'tr' },
       { button_id: 2, label: '💳 Manava Visa-Karte', language: 'de' },
       { button_id: 3, label: '🛡️ Альянс', language: 'ru' },
       { button_id: 3, label: '🛡️ Альянс', language: 'ua' },
       { button_id: 3, label: '🛡️ Alliance', language: 'en' },
+      { button_id: 3, label: '🛡️ Alliance', language: 'global' },
       { button_id: 3, label: '🛡️ Alianza', language: 'es' },
       { button_id: 3, label: '🛡️ İttifak', language: 'tr' },
       { button_id: 3, label: '🛡️ Allianz', language: 'de' },
       { button_id: 4, label: 'ℹ️ Информация', language: 'ru' },
       { button_id: 4, label: 'ℹ️ Інформація', language: 'ua' },
       { button_id: 4, label: 'ℹ️ Info', language: 'en' },
+      { button_id: 4, label: 'ℹ️ Info', language: 'global' },
       { button_id: 4, label: 'ℹ️ Información', language: 'es' },
       { button_id: 4, label: 'ℹ️ Bilgi', language: 'tr' },
       { button_id: 4, label: 'ℹ️ Info', language: 'de' },
       { button_id: 5, label: '🌍 Сменить язык', language: 'ru' },
       { button_id: 5, label: '🌍 Змінити мову', language: 'ua' },
       { button_id: 5, label: '🌍 Change Language', language: 'en' },
+      { button_id: 5, label: '🌍 Change Language', language: 'global' },
       { button_id: 5, label: '🌍 Cambiar Idioma', language: 'es' },
       { button_id: 5, label: '🌍 Dil Değiştir', language: 'tr' },
       { button_id: 5, label: '🌍 Sprache Ändern', language: 'de' },
@@ -4102,6 +4114,11 @@ module.exports = {
         button_id: 6,
         label: '→ MANAVA APP ←',
         language: 'en',
+      },
+      {
+        button_id: 6,
+        label: '→ MANAVA APP ←',
+        language: 'global',
       },
       {
         button_id: 6,

@@ -18,8 +18,6 @@ const languageResolver =
     const telegramId = msg.from.id;
     const username = msg.from.username || null;
 
-    console.log('msg.from.language_code', msg.from.language_code)
-
     const [user] = await getUserBotInfo({
       telegramId: String(telegramId),
       language: languageResolver(msg),
