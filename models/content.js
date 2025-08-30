@@ -77,6 +77,7 @@ const Buttons = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
+    label: Sequelize.STRING,
     order: Sequelize.INTEGER,
     type: {
       type: Sequelize.ENUM('url', 'callback', 'none'),

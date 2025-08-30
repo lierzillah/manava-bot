@@ -4,13 +4,13 @@ const { getUserBotInfo, updateUserInfo, logAction } = require('./resolvers');
 const { findSelectedLang, allLanguages } = require('./lang');
 
 const initContentHandlers = (bot, options = {}) => {
-const languageResolver =
-  options.getLanguageForMessage ||
-  ((msg) => {
-    let lang = (msg.from && msg.from.language_code) || 'en';
-    if (lang === 'uk') lang = 'ua';
-    return lang;
-  });
+  const languageResolver =
+    options.getLanguageForMessage ||
+    ((msg) => {
+      let lang = (msg.from && msg.from.language_code) || 'en';
+      if (lang === 'uk') lang = 'ua';
+      return lang;
+    });
 
   bot.on('message', async (msg) => {
     const text = msg.text;

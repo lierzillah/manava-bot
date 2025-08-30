@@ -8,115 +8,91 @@ const {
 
 const { WEB_URL } = process.env;
 
-const buildKeyboard = (buttons = [], translations = []) => {
-  const get = (obj, ...keys) => {
-    for (const k of keys)
-      if (obj && obj[k] !== undefined && obj[k] !== null) return obj[k];
-    return undefined;
-  };
+const buildKeyboard = (buttons = []) => {
+  const fullWidthButtons = buttons
+    .filter((b) => b.isFullWidth)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-  const toPlain = (obj) =>
-    obj && typeof obj.get === 'function' ? obj.get({ plain: true }) : obj;
+  const groupedByRow = buttons
+    .filter((b) => !b.isFullWidth)
+    .reduce((acc, btn) => {
+      (acc[btn.rowOrder ?? 0] ||= []).push(btn);
+      return acc;
+    }, {});
 
-  const plainButtons = (buttons || []).map(toPlain);
-  const plainTranslations = (translations || []).map(toPlain);
+  Object.values(groupedByRow).forEach((row) =>
+    row.sort((a, b) => a.order - b.order),
+  );
 
-  const byButtonId = plainTranslations.reduce((acc, t) => {
-    const id = get(t, 'buttonId', 'button_id');
-    if (id !== undefined) acc[id] = t;
-    return acc;
-  }, {});
+  const result = [...fullWidthButtons, ...Object.values(groupedByRow)].sort(
+    (a, b) => {
+      const orderA = Array.isArray(a) ? a[0].rowOrder : a.order;
+      const orderB = Array.isArray(b) ? b[0].rowOrder : b.order;
+      return (orderA ?? 0) - (orderB ?? 0);
+    },
+  );
 
-  const getOrder = (btn) => get(btn, 'order') ?? get(btn, 'raw.order') ?? 0;
+  const keyboardType = result[0]?.keyboardType || 'reply';
+  console.log('keyboardType', keyboardType);
 
-  const ordered = plainButtons
-    .slice()
-    .sort((a, b) => getOrder(a) - getOrder(b));
+  const keyboard = result.map((item) =>
+    Array.isArray(item)
+      ? item.map((btn) => {
+          if (btn.type === 'url') return { text: btn.label, url: btn.url };
+          if (btn.type === 'callback')
+            return { text: btn.label, callback_data: String(btn.buttonId) };
+          if (btn.type === 'web_app')
+            return { text: btn.label, web_app: { url: btn.url } };
+          return { text: btn.label };
+        })
+      : [
+          (() => {
+            const btn = item;
+            if (btn.type === 'url') return { text: btn.label, url: btn.url };
+            if (btn.type === 'callback')
+              return { text: btn.label, callback_data: String(btn.buttonId) };
+            if (btn.type === 'web_app')
+              return { text: btn.label, web_app: { url: btn.url } };
+            return { text: btn.label };
+          })(),
+        ],
+  );
 
-  const rowsMap = {};
+  const replyMarkup =
+    keyboardType === 'reply'
+      ? { keyboard, resize_keyboard: true }
+      : { inline_keyboard: keyboard };
 
-  ordered.forEach((btn) => {
-    const keyboardType = get(btn, 'keyboardType', 'keyboard_type') || 'inline';
-    const row = Number(get(btn, 'rowOrder', 'row_order') ?? 0);
-    const isFull = !!(
-      get(btn, 'isFullWidth', 'is_full_width') ||
-      get(btn, 'isFull') ||
-      false
-    );
-    const id = get(btn, 'buttonId', 'button_id') ?? get(btn, 'id');
-    const label = byButtonId[id]?.label ?? btn.label ?? 'button';
-    rowsMap[keyboardType] = rowsMap[keyboardType] || {};
-    rowsMap[keyboardType][row] = rowsMap[keyboardType][row] || [];
-    const item = {
-      id,
-      text: label,
-      isFull,
-      type: get(btn, 'type'),
-      url: get(btn, 'url'),
-      callback: get(btn, 'callback'),
-      web_app:
-        get(btn, 'web_app') ||
-        (get(btn, 'type') === 'web_app' && get(btn, 'url')
-          ? { url: get(btn, 'url') }
-          : undefined),
-      raw: btn,
-    };
-    rowsMap[keyboardType][row].push(item);
-  });
+  return replyMarkup;
+};
 
-  const buildRows = (map) =>
-    Object.keys(map || {})
-      .map((k) => Number(k))
-      .sort((a, b) => a - b)
-      .map((k) => map[k]);
+const toPlain = (obj) =>
+  obj && typeof obj.get === 'function' ? obj.get({ plain: true }) : obj || {};
 
-  const replyMap = rowsMap.reply || {};
-  const inlineMap = rowsMap.inline || {};
+const extractButtonsFromAssocs = (assocs) => {
+  if (!Array.isArray(assocs)) return [];
+  return assocs.map((a) => {
+    const assoc = toPlain(a);
+    const btn = toPlain(assoc.button);
 
-  const replyRowsRaw = buildRows(replyMap);
-  const inlineRows = buildRows(inlineMap);
+    const order = assoc.order ?? btn.order ?? 0;
+    const rowOrder = assoc.rowOrder ?? btn.rowOrder ?? 0;
+    const isFullWidth = assoc.isFullWidth ?? btn.isFullWidth ?? false;
 
-  if (replyRowsRaw.length) {
-    const replyRows = [];
-    replyRowsRaw.forEach((row) => {
-      const normals = row.filter((c) => !c.isFull);
-      const fulls = row.filter((c) => c.isFull);
-      if (normals.length)
-        replyRows.push(
-          normals.map((n) =>
-            n.web_app ? { text: n.text, web_app: n.web_app } : { text: n.text },
-          ),
-        );
-      fulls.forEach((f) =>
-        replyRows.push([
-          f.web_app ? { text: f.text, web_app: f.web_app } : { text: f.text },
-        ]),
-      );
-    });
+    const translations = (btn.translations || []).map((t) => ({
+      buttonId: btn.buttonId,
+      label: t.label ?? '',
+      language: t.language ?? '',
+    }));
+
     return {
-      keyboard: replyRows,
-      resize_keyboard: true,
-      one_time_keyboard: false,
+      ...btn,
+      order,
+      rowOrder: isFullWidth ? null : rowOrder,
+      isFullWidth,
+      label: translations[0]?.label || btn.label || '',
     };
-  }
-
-  if (inlineRows.length) {
-    const inlineKeyboard = inlineRows.map((row) =>
-      row.map((item) => {
-        if (item.type === 'url' && item.url)
-          return { text: item.text, url: item.url };
-        if (item.type === 'web_app' && item.url)
-          return { text: item.text, web_app: { url: item.url } };
-        return {
-          text: item.text,
-          callback_data: item.callback || `button:${item.id || ''}`,
-        };
-      }),
-    );
-    return { inline_keyboard: inlineKeyboard };
-  }
-
-  return null;
+  });
 };
 
 const mapContentRow = (row) => {
@@ -205,50 +181,10 @@ const sendBlock = async (
           ],
         },
       ],
-      order: [
-        ['row_order', 'ASC'],
-        ['id', 'ASC'],
-      ],
     });
 
-    const buttons = assocs.map((a) => {
-      const rawBtn =
-        a.button && a.button.get
-          ? a.button.get({ plain: true })
-          : a.button || {};
-      const btnId = rawBtn.buttonId ?? rawBtn.id;
-      const isFullFromAssoc = a.isFullWidth ?? a.is_full_width;
-      const rowFromAssoc = a.rowOrder ?? a.row_order;
-      const isFullFromBtn = rawBtn.isFullWidth ?? rawBtn.is_full_width;
-      const rowFromBtn = rawBtn.rowOrder ?? rawBtn.row_order;
-      const isFull =
-        typeof isFullFromAssoc !== 'undefined'
-          ? !!isFullFromAssoc
-          : !!isFullFromBtn;
-      const rowOrder = Number(
-        typeof rowFromAssoc !== 'undefined'
-          ? rowFromAssoc
-          : typeof rowFromBtn !== 'undefined'
-            ? rowFromBtn
-            : 0,
-      );
-      return {
-        ...rawBtn,
-        buttonId: btnId,
-        isFullWidth: isFull,
-        rowOrder,
-        translations: rawBtn.translations ?? [],
-      };
-    });
-
-    const translations = buttons.flatMap((b) =>
-      (b.translations || []).map((t) => ({
-        buttonId: b.buttonId,
-        label: t.label,
-        language: t.language,
-      })),
-    );
-    const replyMarkup = buildKeyboard(buttons, translations);
+    const buttonsSimple = extractButtonsFromAssocs(assocs);
+    const replyMarkup = buildKeyboard(buttonsSimple);
 
     if (!contentRows || !contentRows.length) {
       await sendMediaOrText(bot, chatId, null, replyMarkup);

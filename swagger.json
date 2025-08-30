@@ -796,13 +796,13 @@
                     "enum": ["url", "callback", "web_app", "none"],
                     "default": "none"
                   },
-                  "keyboard_type": {
+                  "keyboardType": {
                     "type": "string",
                     "enum": ["inline", "reply"]
                   },
-                  "is_full_width": { "type": "boolean" },
-                  "row_order": { "type": "integer" },
-                  "next_block_id": { "type": "integer" },
+                  "isFullWidth": { "type": "boolean" },
+                  "rowOrder": { "type": "integer" },
+                  "nextBlockId": { "type": "integer" },
                   "label": { "type": "string" },
                   "url": { "type": "string" },
                   "translations": {
@@ -876,13 +876,13 @@
                     "enum": ["url", "callback", "web_app", "none"],
                     "default": "none"
                   },
-                  "keyboard_type": {
+                  "keyboardType": {
                     "type": "string",
                     "enum": ["inline", "reply"]
                   },
-                  "is_full_width": { "type": "boolean" },
-                  "row_order": { "type": "integer" },
-                  "next_block_id": { "type": "integer" },
+                  "isFullWidth": { "type": "boolean" },
+                  "rowOrder": { "type": "integer" },
+                  "nextBlockId": { "type": "integer" },
                   "label": { "type": "string" },
                   "url": { "type": "string" },
                   "callback": { "type": "string" },

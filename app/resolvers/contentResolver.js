@@ -200,7 +200,7 @@ const getContentButtonById = async ({ buttonId }) => {
 };
 
 const createContentButton = async (req, res) => {
-  const { blockId, order, type, url, callback, translations } = req.body;
+  const { blockId, translations } = req.body;
 
   if (!blockId) {
     return res.status(403).json({ error: 'blockId is required' });
@@ -211,16 +211,11 @@ const createContentButton = async (req, res) => {
   }
 
   try {
-    const button = await Buttons.create({
-      order,
-      type,
-      url,
-      callback,
-    });
+    const button = await Buttons.create({ ...req.body });
 
     await ButtonsToBlocks.create({
       blockId,
-      buttonId: button.blockId,
+      buttonId: button.buttonId,
     });
 
     const translationData = translations.map((t) => ({
@@ -239,14 +234,31 @@ const createContentButton = async (req, res) => {
 };
 
 const updateContentButton = async (args) => {
-  const { buttonId, translations } = args;
+  const {
+    buttonId,
+    translations,
+    order,
+    type,
+    url,
+    callback,
+    label,
+    keyboardType,
+    isFullWidth,
+    rowOrder,
+    nextBlockId,
+  } = args;
 
   await Buttons.update(
     {
-      order: args.order,
-      type: args.type,
-      url: args.url,
-      callback: args.callback,
+      order,
+      type,
+      url,
+      callback,
+      label,
+      keyboardType,
+      isFullWidth,
+      rowOrder,
+      nextBlockId,
     },
     { where: { buttonId } },
   );
