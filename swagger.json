@@ -411,7 +411,7 @@
                 "type": "object",
                 "properties": {
                   "title": { "type": "string", "example": "Morning broadcast" },
-                  "scheduled_at": {
+                  "scheduledAt": {
                     "type": "string",
                     "example": "2025-08-20 10:00:00"
                   },
@@ -508,7 +508,7 @@
                 "type": "object",
                 "properties": {
                   "title": { "type": "string", "example": "Morning broadcast" },
-                  "scheduled_at": {
+                  "scheduledAt": {
                     "type": "string",
                     "example": "2025-08-20 10:00:00"
                   },
@@ -995,7 +995,7 @@
         "properties": {
           "broadcastId": { "type": "integer", "example": 1 },
           "title": { "type": "string", "example": "Morning broadcast" },
-          "scheduled_at": {
+          "scheduledAt": {
             "type": "string",
             "example": "2025-08-20 10:00:00"
           },
@@ -1007,7 +1007,7 @@
             "enum": ["scheduled", "sending", "done", "failed"],
             "example": "scheduled"
           },
-          "error_msg": { "type": "string", "example": "Some error message" },
+          "errorMsg": { "type": "string", "example": "Some error message" },
           "createdAt": { "type": "string", "format": "date-time" },
           "updatedAt": { "type": "string", "format": "date-time" },
           "contents": {

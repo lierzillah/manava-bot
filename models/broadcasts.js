@@ -10,7 +10,7 @@ const Broadcasts = sequelize.define(
       autoIncrement: true,
     },
     title: Sequelize.STRING,
-    scheduled_at: Sequelize.STRING,
+    scheduledAt: Sequelize.STRING,
     intervalCount: { type: Sequelize.INTEGER, defaultValue: 500 },
     intervalDelayMinutes: { type: Sequelize.INTEGER, defaultValue: 5 },
     repeatIntervalDays: { type: Sequelize.INTEGER },
@@ -18,7 +18,7 @@ const Broadcasts = sequelize.define(
       type: Sequelize.ENUM('scheduled', 'sending', 'done', 'failed'),
       defaultValue: 'scheduled',
     },
-    error_msg: {
+    errorMsg: {
       type: Sequelize.TEXT,
     },
     createdAt: {

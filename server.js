@@ -5,6 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const multer = require('multer');
 const TelegramBot = require('node-telegram-bot-api');
+const cron = require('node-cron');
 
 const { TELEGRAM_BOT_ID } = process.env;
 
@@ -17,6 +18,7 @@ const { broadcastRoutes } = require('./app/routes/broadcastRoutes');
 const { contentRoutes } = require('./app/routes/contentRoutes');
 
 const { initContentHandlers } = require('./bot/commands');
+const { sendBroadcastMessage } = require('./bot/sender');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -60,3 +62,9 @@ initContentHandlers(bot);
 app.server = app.listen(port, () => {
   console.log(`Server is listening at http://localhost:${port}`);
 });
+
+// cron.schedule('* * * * *', async () => {
+//    sendBroadcastMessage({ bot });
+// });
+
+sendBroadcastMessage({ bot });
