@@ -63,8 +63,6 @@ app.server = app.listen(port, () => {
   console.log(`Server is listening at http://localhost:${port}`);
 });
 
-// cron.schedule('* * * * *', async () => {
-//    sendBroadcastMessage({ bot });
-// });
-
-sendBroadcastMessage({ bot });
+cron.schedule('* * * * *', async () => {
+  sendBroadcastMessage({ bot });
+});

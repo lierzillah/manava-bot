@@ -14,6 +14,7 @@ const Broadcasts = sequelize.define(
     intervalCount: { type: Sequelize.INTEGER, defaultValue: 500 },
     intervalDelayMinutes: { type: Sequelize.INTEGER, defaultValue: 5 },
     repeatIntervalDays: { type: Sequelize.INTEGER },
+    authorId: { type: Sequelize.INTEGER },
     status: {
       type: Sequelize.ENUM('scheduled', 'sending', 'done', 'failed'),
       defaultValue: 'scheduled',

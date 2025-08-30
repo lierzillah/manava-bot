@@ -1,9 +1,5 @@
 const { Users, UsersEvents } = require('./users');
-const {
-  Broadcasts,
-  BroadcastContents,
-  BroadcastLogs,
-} = require('./broadcasts');
+const { Broadcasts, BroadcastContents } = require('./broadcasts');
 
 const {
   Blocks,
@@ -18,7 +14,6 @@ module.exports = {
   UsersEvents,
   Broadcasts,
   BroadcastContents,
-  BroadcastLogs,
   Blocks,
   ContentTranslations,
   Buttons,

@@ -33,8 +33,16 @@ const updateUserInfo = async ({ telegramId, language }) => {
   return user;
 };
 
-const logAction = async ({ telegramId, type, label }) => {
+const logAction = async ({ telegramId, type, label, metadata = {} }) => {
   const [user] = await getUserBotInfo({ telegramId });
+
+  if (type === 'broadcast_view') {
+    return UsersEvents.create({
+      userId: user.userId,
+      type,
+      metadata,
+    });
+  }
 
   if (label !== '/start') {
     const btn = await ContentButtonTranslations.findOne({
@@ -43,7 +51,7 @@ const logAction = async ({ telegramId, type, label }) => {
 
     if (!btn) return;
 
-    const metadata = {
+    const customMetaData = {
       button_id: btn.buttonId,
       block_id: btn.blockId,
       label: btn.label,
@@ -61,7 +69,7 @@ const logAction = async ({ telegramId, type, label }) => {
     const clickEvent = await UsersEvents.create({
       userId: user.userId,
       type,
-      metadata,
+      metadata: customMetaData,
       buttonId: btn.buttonId,
     });
 
@@ -111,7 +119,7 @@ const logAction = async ({ telegramId, type, label }) => {
     return clickEvent;
   }
 
-  const metadata = {
+  const startMetaData = {
     command: '/start',
     telegram_id: telegramId,
     username: user.username,
@@ -123,7 +131,7 @@ const logAction = async ({ telegramId, type, label }) => {
   return UsersEvents.create({
     userId: user.userId,
     type,
-    metadata,
+    metadata: startMetaData,
   });
 };
 

@@ -53,22 +53,24 @@ const broadcastRoutes = async (app, upload) => {
 
   app.post(
     '/broadcasts',
-    // tokenValidator('jwt'),
+    tokenValidator('jwt'),
     upload.single('mediaFile'),
     async (req, res) => {
       try {
-        // const canAccessContent = await checkAccess({
-        //   userId: req.userId,
-        //   allowedRoles: ['content_manager', 'marketer'],
-        // });
+        const canAccessContent = await checkAccess({
+          userId: req.userId,
+          allowedRoles: ['content_manager', 'marketer'],
+        });
 
-        // if (!canAccessContent)
-        //   return accessErrorMsg({
-        //     res,
-        //     roles: 'Admin, Content Manager or Marketer',
-        //   });
+        if (!canAccessContent)
+          return accessErrorMsg({
+            res,
+            roles: 'Admin, Content Manager or Marketer',
+          });
 
         if (req.file) req.body.mediaUrl = `/uploads/${req.file.filename}`;
+
+        req.body.authorId = req.userId;
 
         const broadcast = await createBroadcast(req.body);
         res.json(broadcast);
@@ -84,6 +86,19 @@ const broadcastRoutes = async (app, upload) => {
     upload.single('mediaFile'),
     async (req, res) => {
       try {
+        const canAccessContent = await checkAccess({
+          userId: req.userId,
+          allowedRoles: ['content_manager', 'marketer'],
+        });
+
+        if (!canAccessContent)
+          return accessErrorMsg({
+            res,
+            roles: 'Admin, Content Manager or Marketer',
+          });
+
+        req.body.authorId = req.userId;
+
         const updated = await updateBroadcast({
           broadcastId: req.params.broadcastId,
           data: req.body,

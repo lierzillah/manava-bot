@@ -31,6 +31,7 @@ module.exports = {
       },
       repeat_interval_days: { type: Sequelize.INTEGER, defaultValue: 0 },
       error_msg: { type: Sequelize.TEXT },
+      author_id: { type: Sequelize.INTEGER },
       ...dateFields,
     });
 

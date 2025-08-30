@@ -1,5 +1,6 @@
 const moment = require('moment');
 const { Users, Broadcasts, BroadcastContents } = require('../models');
+const { logAction } = require('./resolvers');
 
 const chunkArray = (arr, size) => {
   const chunks = [];
@@ -21,17 +22,33 @@ const sendBroadcastMessage = async ({ bot }) => {
         as: 'contents',
       },
     ],
-  }); 
+  });
 
   for (const broadcast of broadcasts) {
     const scheduledTime = moment(broadcast.scheduledAt);
     if (!now.isSameOrAfter(scheduledTime)) continue;
 
     const intervalCount = Math.max(broadcast.intervalCount || 500, 1);
-    const intervalDelayMinutes = Math.max(broadcast.intervalDelayMinutes || 5, 0);
+    const intervalDelayMinutes = Math.max(
+      broadcast.intervalDelayMinutes || 5,
+      0,
+    );
 
     const users = await Users.findAll({ where: { sendNotifications: true } });
     const userChunks = chunkArray(users, intervalCount);
+
+    const metadata = {
+      broadcast_id: broadcast.broadcastId,
+      scheduled_at: broadcast.scheduledAt,
+      title: broadcast.title,
+      interval_count: broadcast.intervalCount,
+      language: broadcast.intervalDelayMinutes,
+      repeat_interval_days: broadcast.repeatIntervalDays,
+      status: broadcast.status,
+      language: broadcast.contents.language,
+      error_msg: broadcast.errorMsg,
+      timestamp: new Date().toISOString(),
+    };
 
     for (let i = 0; i < userChunks.length; i++) {
       const chunk = userChunks[i];
@@ -48,6 +65,12 @@ const sendBroadcastMessage = async ({ bot }) => {
               content,
               broadcastId: broadcast.broadcastId,
             });
+
+            await logAction({
+              telegramId: user.telegramId,
+              type: 'broadcast_view',
+              metadata,
+            });
           } catch (e) {
             broadcast.status = 'failed';
             broadcast.errorMsg = e.message;
@@ -58,8 +81,8 @@ const sendBroadcastMessage = async ({ bot }) => {
       }
 
       if (i < userChunks.length - 1 && intervalDelayMinutes > 0) {
-        await new Promise(resolve =>
-          setTimeout(resolve, intervalDelayMinutes * 60 * 1000)
+        await new Promise((resolve) =>
+          setTimeout(resolve, intervalDelayMinutes * 60 * 1000),
         );
       }
     }
@@ -135,10 +158,10 @@ const sendTelegramMessage = async ({ bot, chatId, content, broadcastId }) => {
     } else {
       await bot.sendMessage(chatId, content.text || '', opts);
     }
+    return;
   } catch (error) {
     throw Error(error.message);
   }
 };
 
 module.exports = { sendBroadcastMessage };
- 
