@@ -32,8 +32,9 @@ const buildKeyboard = (buttons = []) => {
     },
   );
 
+  console.log('result', result);
+
   const keyboardType = result[0]?.keyboardType || 'reply';
-  console.log('keyboardType', keyboardType);
 
   const keyboard = result.map((item) =>
     Array.isArray(item)

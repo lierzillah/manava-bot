@@ -8,6 +8,7 @@ const {
   ContentButtonTranslations,
   ButtonsToBlocks,
 } = require('../../models');
+const { or } = require('sequelize');
 
 const getAllBlocks = async () => {
   const blocks = await Blocks.findAll({
@@ -200,7 +201,7 @@ const getContentButtonById = async ({ buttonId }) => {
 };
 
 const createContentButton = async (req, res) => {
-  const { blockId, translations } = req.body;
+  const { blockId, translations, isFullWidth, rowOrder, order } = req.body;
 
   if (!blockId) {
     return res.status(403).json({ error: 'blockId is required' });
@@ -216,6 +217,9 @@ const createContentButton = async (req, res) => {
     await ButtonsToBlocks.create({
       blockId,
       buttonId: button.buttonId,
+      isFullWidth,
+      rowOrder,
+      order,
     });
 
     const translationData = translations.map((t) => ({
@@ -234,34 +238,16 @@ const createContentButton = async (req, res) => {
 };
 
 const updateContentButton = async (args) => {
-  const {
-    buttonId,
-    translations,
-    order,
-    type,
-    url,
-    callback,
-    label,
-    keyboardType,
-    isFullWidth,
-    rowOrder,
-    nextBlockId,
-  } = args;
+  const { buttonId, translations, isFullWidth, rowOrder, order } = args;
 
-  await Buttons.update(
-    {
-      order,
-      type,
-      url,
-      callback,
-      label,
-      keyboardType,
-      isFullWidth,
-      rowOrder,
-      nextBlockId,
+  const btn = await Buttons.findOne({
+    where: {
+      buttonId,
     },
-    { where: { buttonId } },
-  );
+  });
+
+  if (!btn) return;
+  await btn.update({ ...args });
 
   if (Array.isArray(translations)) {
     for (const tr of translations) {
