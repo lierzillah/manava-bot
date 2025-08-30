@@ -194,11 +194,22 @@ const deleteContentBlock = async ({ blockId }) => {
 };
 
 const getContentButtonById = async ({ buttonId }) => {
-  return Buttons.findOne({
+  const button = await Buttons.findOne({
     where: { buttonId },
     include: [{ model: ContentButtonTranslations, as: 'translations' }],
   });
+
+  if (!button) return null;
+
+  const buttonSettings = await ButtonsToBlocks.findAll({
+    where: { buttonId },
+  });
+
+  button.settings = buttonSettings || [];
+
+  return button;
 };
+
 
 const createContentButton = async (req, res) => {
   const { blockId, translations, isFullWidth, rowOrder, order } = req.body;
@@ -305,7 +316,7 @@ const updateContentButtonSettings = async (args) => {
 const deleteContentButton = async ({ buttonId }) => {
   await ContentButtonTranslations.destroy({ where: { buttonId } });
   await Buttons.destroy({ where: { buttonId } });
-  await ButtonsToBlocks.create({
+  await ButtonsToBlocks.destroy({
     buttonId,
   });
   return { success: true };

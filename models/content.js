@@ -97,6 +97,8 @@ const Buttons = sequelize.define(
       type: Sequelize.INTEGER,
     },
     nextBlockId: { type: Sequelize.INTEGER },
+    settings: { type: Sequelize.VIRTUAL },
+    
     createdAt: {
       type: Sequelize.DATE,
       field: 'created_at',
