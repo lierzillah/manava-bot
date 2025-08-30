@@ -266,6 +266,42 @@ const updateContentButton = async (args) => {
   return getContentButtonById({ buttonId });
 };
 
+const updateContentButtonSettings = async (args) => {
+  const { buttonId, blockId } = args;
+
+  const btn = await Buttons.findOne({
+    where: {
+      buttonId,
+    },
+  });
+
+  const buttonSettings = await ButtonsToBlocks.findOne({
+    where: {
+      buttonId,
+      blockId
+    }
+  });
+
+  await buttonSettings.update({ ...args });
+
+  return ButtonsToBlocks.findOne({
+      where: { blockId, buttonId },
+      include: [
+        {
+          model: Buttons,
+          as: 'button',
+          include: [
+            {
+              model: ContentButtonTranslations,
+              as: 'translations',
+              required: false,
+            },
+          ],
+        },
+      ],
+    });
+};
+
 const deleteContentButton = async ({ buttonId }) => {
   await ContentButtonTranslations.destroy({ where: { buttonId } });
   await Buttons.destroy({ where: { buttonId } });
@@ -293,4 +329,5 @@ module.exports = {
   updateContentButton,
   deleteContentButton,
   createTranslationForBlock,
+  updateContentButtonSettings
 };

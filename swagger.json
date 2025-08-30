@@ -928,6 +928,92 @@
           "404": { "description": "Error deleting content button" }
         }
       }
+    },
+      "/content/settings/button/{buttonId}/{blockId}": {
+      "put": {
+        "tags": ["Content Buttons"],
+        "summary": "Update content button settings",
+        "parameters": [
+          {
+            "name": "buttonId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "ID of the button to update"
+          },
+          {
+            "name": "blockId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "ID of the block where the button is located"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "isFullWidth": { "type": "boolean" },
+                  "rowOrder": { "type": "integer" },
+                  "order": { "type": "integer" }
+                },
+                "required": ["isFullWidth"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Button settings updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "buttonId": { "type": "integer" },
+                    "blockId": { "type": "integer" },
+                    "isFullWidth": { "type": "boolean" },
+                    "rowOrder": { "type": "integer" },
+                    "order": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Button or block not found / error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          { "bearerAuth": [] }
+        ]
+      }
     }
   },
   "components": {

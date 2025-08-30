@@ -5,6 +5,7 @@ const {
   updateContentBlock,
   deleteContentBlock,
   getAllButtons,
+  updateContentButtonSettings,
   createTranslationForBlock,
   getContentButtonById,
   createContentButton,
@@ -144,6 +145,29 @@ const contentRoutes = async (app, upload) => {
         const updatedButton = await updateContentButton({
           ...req.body,
           buttonId: req.params.buttonId,
+        });
+        res.json(updatedButton);
+      } catch (error) {
+        res.status(404).json({ error: error.message });
+      }
+    },
+  );
+
+  app.put(
+    '/content/settings/button/:buttonId/:blockId',
+    tokenValidator('jwt'),
+    async (req, res) => {
+      try {
+        const canAccess = await checkAccess({
+          userId: req.userId,
+          allowedRoles: ['content_manager'],
+        });
+        if (!canAccess)
+          return accessErrorMsg({ res, roles: 'Content Manager' });
+        const updatedButton = await updateContentButtonSettings({
+          ...req.body,
+          buttonId: req.params.buttonId,
+          blockId: req.params.blockId,
         });
         res.json(updatedButton);
       } catch (error) {
